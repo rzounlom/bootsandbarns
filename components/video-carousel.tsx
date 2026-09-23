@@ -2,74 +2,147 @@
 
 import Image from "next/image";
 import {
+  useCallback,
   useEffect,
-  useId,
   useRef,
   useState,
+  useSyncExternalStore,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
-import { farmVideos } from "@/lib/media";
 import { Reveal } from "@/components/reveal";
+import { farmVideos } from "@/lib/media";
+
+const INTERVAL_MS = 6500;
+const PILL = 22;
+
+function subscribeToMotion(onChange: () => void) {
+  const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+  media.addEventListener("change", onChange);
+  return () => media.removeEventListener("change", onChange);
+}
+
+function motionSnapshot() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
 
 export function VideoCarousel() {
-  const [active, setActive] = useState<number | null>(null);
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
+  const [frame, setFrame] = useState({ index: 0, previous: 0 });
+  const [playing, setPlaying] = useState<number | null>(null);
+  const [inView, setInView] = useState(false);
+  const [userTick, setUserTick] = useState(0);
+  const [step, setStep] = useState(0);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const slideRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const returnFocus = useRef<HTMLElement | null>(null);
-  const titleId = useId();
-  const clip = active === null ? null : farmVideos[active];
+  const swipe = useRef<{ x: number; y: number } | null>(null);
+  const count = farmVideos.length;
+  const index = frame.index;
+  const reduceMotion = useSyncExternalStore(subscribeToMotion, motionSnapshot, () => false);
+  const paused = reduceMotion || !inView || playing !== null;
+  const distance = Math.abs(index - frame.previous);
+  const wrapped = distance === count - 1;
+  const glideSeconds = wrapped ? 0 : Math.min(0.42 * Math.max(distance, 1), 2.4);
+
+  const markInteraction = useCallback(() => {
+    setUserTick((tick) => tick + 1);
+  }, []);
+
+  const goTo = useCallback(
+    (nextIndex: number) => {
+      markInteraction();
+      setPlaying(null);
+      setFrame((current) => {
+        const next = (nextIndex + count) % count;
+        if (next === current.index) return current;
+        return { index: next, previous: current.index };
+      });
+    },
+    [count, markInteraction],
+  );
+
+  const showPrevious = useCallback(() => {
+    markInteraction();
+    setPlaying(null);
+    setFrame((current) => ({
+      index: (current.index - 1 + count) % count,
+      previous: current.index,
+    }));
+  }, [count, markInteraction]);
+
+  const showNext = useCallback(() => {
+    markInteraction();
+    setPlaying(null);
+    setFrame((current) => ({
+      index: (current.index + 1) % count,
+      previous: current.index,
+    }));
+  }, [count, markInteraction]);
+
+  const playClip = useCallback(
+    (clipIndex: number) => {
+      markInteraction();
+      setFrame((current) =>
+        current.index === clipIndex
+          ? current
+          : { index: clipIndex, previous: current.index },
+      );
+      setPlaying(clipIndex);
+    },
+    [markInteraction],
+  );
 
   useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
+    const slide = slideRef.current;
+    const track = trackRef.current;
+    if (!slide || !track) return;
+    const measure = () => {
+      const gap = Number.parseFloat(getComputedStyle(track).columnGap) || 0;
+      setStep(slide.getBoundingClientRect().width + gap);
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(slide);
+    observer.observe(track);
+    return () => observer.disconnect();
+  }, []);
 
-    if (active === null) {
-      if (dialog.open) dialog.close();
-      return;
-    }
+  useEffect(() => {
+    const node = rootRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setInView(Boolean(entry?.isIntersecting && entry.intersectionRatio >= 0.4));
+      },
+      { threshold: [0, 0.4, 0.8] },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
-    if (!dialog.open) {
-      dialog.showModal();
-      closeRef.current?.focus();
-    }
-    const player = videoRef.current;
-    player?.play().catch(() => undefined);
-  }, [active]);
+  useEffect(() => {
+    if (paused) return;
+    const id = window.setInterval(() => {
+      setFrame((current) => ({
+        index: (current.index + 1) % count,
+        previous: current.index,
+      }));
+    }, INTERVAL_MS);
+    return () => window.clearInterval(id);
+  }, [paused, count, userTick]);
 
-  function openClip(index: number, trigger: HTMLElement) {
-    returnFocus.current = trigger;
-    setActive(index);
-  }
+  useEffect(() => {
+    if (playing === null) return;
+    videoRef.current?.play().catch(() => undefined);
+  }, [playing]);
 
-  function close() {
-    const player = videoRef.current;
-    if (player) {
-      player.pause();
-      player.currentTime = 0;
-    }
-    const dialog = dialogRef.current;
-    if (dialog?.open) dialog.close();
-    else setActive(null);
-  }
-
-  function step(direction: number) {
-    const player = videoRef.current;
-    if (player) player.pause();
-    setActive((current) => {
-      if (current === null) return current;
-      return (current + direction + farmVideos.length) % farmVideos.length;
-    });
-  }
-
-  function onDialogKey(event: ReactKeyboardEvent<HTMLDialogElement>) {
+  function onKeyDown(event: ReactKeyboardEvent<HTMLElement>) {
     if (event.target instanceof HTMLVideoElement) return;
     if (event.key === "ArrowLeft") {
       event.preventDefault();
-      step(-1);
+      showPrevious();
     } else if (event.key === "ArrowRight") {
       event.preventDefault();
-      step(1);
+      showNext();
     }
   }
 
@@ -77,9 +150,9 @@ export function VideoCarousel() {
     <section
       id="videos"
       aria-labelledby="videos-heading"
-      className="bg-[linear-gradient(165deg,#1a6b3a_0%,#0f4d2c_48%,#102818_100%)] text-paper"
+      className="overflow-hidden bg-[linear-gradient(165deg,#1a6b3a_0%,#0f4d2c_48%,#102818_100%)] text-paper"
     >
-      <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20 lg:py-24">
+      <div className="mx-auto max-w-3xl px-5 pt-16 text-center sm:px-8 sm:pt-20 lg:pt-24">
         <Reveal>
           <p className="kicker text-marigold">Videos</p>
           <h2
@@ -89,114 +162,146 @@ export function VideoCarousel() {
             Clips from the farm
           </h2>
         </Reveal>
-        <ul className="mt-8 grid grid-cols-2 items-stretch gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
-          {farmVideos.map((video, index) => (
-            <li key={video.src} className="flex min-w-0">
-              <Reveal delay={index * 60} className="flex h-full w-full">
-                <button
-                  type="button"
-                  className="group flex h-full w-full flex-col overflow-hidden rounded-2xl bg-[rgb(20_12_8/0.55)] text-left ring-1 ring-white/12 transition duration-300 hover:-translate-y-1 hover:ring-marigold/80 focus-visible:ring-marigold"
-                  aria-haspopup="dialog"
-                  aria-label={`Play ${video.title}`}
-                  onClick={(event) => openClip(index, event.currentTarget)}
-                >
-                  <span
-                    className="relative block w-full bg-wood"
-                    style={{ aspectRatio: `${video.width} / ${video.height}` }}
-                  >
-                    <Image
-                      src={video.poster}
-                      alt=""
-                      fill
-                      sizes="(min-width: 1024px) 16rem, (min-width: 640px) 30vw, 46vw"
-                      className="object-contain"
-                    />
-                    <span className="absolute inset-0 bg-[rgb(12_18_10/0.18)] transition group-hover:bg-[rgb(12_18_10/0.05)]" />
-                    <span className="absolute top-1/2 left-1/2 grid size-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-paper text-ink shadow-[0_10px_24px_-12px_rgb(0_0_0/0.8)]">
-                      <PlayIcon />
-                    </span>
-                  </span>
-                  <span className="flex flex-1 flex-col px-3 py-3">
-                    <span className="font-sans text-base font-semibold text-paper">
-                      {video.title}
-                    </span>
-                    <span className="mt-1 text-sm leading-relaxed text-cream/80">
-                      {video.description}
-                    </span>
-                  </span>
-                </button>
-              </Reveal>
-            </li>
-          ))}
-        </ul>
+      </div>
 
-      <dialog
-        ref={dialogRef}
-        aria-labelledby={titleId}
-        className="clip-dialog"
-        onClose={() => {
-          setActive(null);
-          returnFocus.current?.focus();
-        }}
-        onKeyDown={onDialogKey}
-        onClick={(event) => {
-          if (event.target === event.currentTarget) close();
-        }}
+      <div
+        ref={rootRef}
+        className="mx-auto mt-10 w-full max-w-[90rem] px-5 pb-16 sm:px-8 sm:pb-20 lg:pb-24"
+        aria-roledescription="carousel"
+        aria-label="Farm clips"
+        onKeyDown={onKeyDown}
       >
-        {clip ? (
-          <div className="flex max-h-[100dvh] flex-col [@media(max-height:520px)]:max-h-[calc(100dvh-0.5rem)] [@media(max-height:520px)]:flex-row [@media(max-height:520px)]:items-stretch">
-            <div className="flex items-start justify-between gap-3 px-4 py-3 [@media(max-height:520px)]:w-40 [@media(max-height:520px)]:shrink-0 [@media(max-height:520px)]:flex-col [@media(max-height:520px)]:justify-between">
-              <div>
-                <p
-                  id={titleId}
-                  className="font-sans text-lg font-semibold text-paper"
+        <div
+          className="overflow-hidden"
+          onPointerDown={(event) => {
+            if ((event.target as HTMLElement).closest("[data-carousel-control]")) return;
+            if (event.button !== 0) return;
+            swipe.current = { x: event.clientX, y: event.clientY };
+          }}
+          onPointerUp={(event) => {
+            if (!swipe.current) return;
+            const dx = event.clientX - swipe.current.x;
+            const dy = event.clientY - swipe.current.y;
+            swipe.current = null;
+            if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return;
+            if (dx < 0) showNext();
+            else showPrevious();
+          }}
+          onPointerCancel={() => {
+            swipe.current = null;
+          }}
+        >
+          <div
+            ref={trackRef}
+            className="flex items-start gap-5"
+            style={{
+              transform: step ? `translate3d(${-index * step}px, 0, 0)` : undefined,
+              transition: glideSeconds ? `transform ${glideSeconds}s ease` : "none",
+            }}
+          >
+            {farmVideos.map((video, clipIndex) => (
+              <div
+                key={video.src}
+                ref={clipIndex === 0 ? slideRef : undefined}
+                className="w-[min(22.625rem,calc(100%-4.5rem))] shrink-0 cursor-pointer sm:w-[min(22.625rem,calc((100%-1.25rem)/2))] lg:w-[22.625rem]"
+                aria-current={clipIndex === index ? "true" : undefined}
+                onClick={() => {
+                  if (playing !== clipIndex) playClip(clipIndex);
+                }}
+              >
+                <div
+                  className="group relative overflow-hidden rounded-xl bg-wood"
+                  style={{ aspectRatio: `${video.width} / ${video.height}` }}
                 >
-                  {clip.title}
-                </p>
-                <p className="text-sm text-cream/80">{clip.description}</p>
+                  {playing === clipIndex ? (
+                    <video
+                      ref={videoRef}
+                      key={video.src}
+                      className="h-full w-full bg-black object-contain"
+                      controls
+                      playsInline
+                      poster={video.poster}
+                      aria-label={video.title}
+                      onEnded={() => setPlaying(null)}
+                    >
+                      <source src={video.src} type="video/mp4" />
+                    </video>
+                  ) : (
+                    <>
+                      <Image
+                        src={video.poster}
+                        alt=""
+                        fill
+                        sizes="362px"
+                        className="object-contain transition duration-500 ease-linear group-hover:scale-105"
+                      />
+                      <button
+                        type="button"
+                        data-carousel-control=""
+                        className="absolute top-1/2 left-1/2 grid size-16 -translate-x-1/2 -translate-y-1/2 cursor-pointer place-items-center rounded-full bg-paper text-ink shadow-[0_10px_24px_-12px_rgb(0_0_0/0.8)]"
+                        aria-label={`Play ${video.title}`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          playClip(clipIndex);
+                        }}
+                      >
+                        <PlayIcon />
+                      </button>
+                    </>
+                  )}
+                  {clipIndex === index && playing !== clipIndex ? (
+                    <button
+                      type="button"
+                      data-carousel-control=""
+                      className="absolute right-3 bottom-3 grid size-14 cursor-pointer place-items-center rounded-full text-paper opacity-0 transition duration-300 group-hover:opacity-100 focus-visible:opacity-100"
+                      aria-label="Next clip"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        showNext();
+                      }}
+                    >
+                      <Arrow />
+                    </button>
+                  ) : null}
+                </div>
+                <p className="mt-3 text-center font-sans text-lg font-semibold">{video.title}</p>
               </div>
-              <button
-                ref={closeRef}
-                type="button"
-                className="btn min-h-11 shrink-0 px-4 text-sm"
-                onClick={close}
-              >
-                Close
-              </button>
-            </div>
-            <div className="flex min-w-0 flex-1 items-center justify-center bg-black px-3 pb-3 [@media(max-height:520px)]:flex-none [@media(max-height:520px)]:px-2 [@media(max-height:520px)]:py-2">
-              <video
-                key={clip.src}
-                ref={videoRef}
-                className="max-h-[min(70dvh,40rem)] w-auto max-w-full bg-black [@media(max-height:520px)]:max-h-[calc(100dvh-1.5rem)]"
-                style={{ aspectRatio: `${clip.width} / ${clip.height}` }}
-                controls
-                playsInline
-                poster={clip.poster}
-                aria-label={clip.description}
-              >
-                <source src={clip.src} type="video/mp4" />
-              </video>
-            </div>
-            <div className="grid grid-cols-2 gap-3 px-4 py-4 [@media(max-height:520px)]:w-36 [@media(max-height:520px)]:shrink-0 [@media(max-height:520px)]:grid-cols-1 [@media(max-height:520px)]:content-center">
-              <button
-                type="button"
-                className="inline-flex min-h-12 items-center justify-center rounded-full border border-cream/30 text-base font-semibold text-paper"
-                onClick={() => step(-1)}
-              >
-                Previous
-              </button>
-              <button
-                type="button"
-                className="inline-flex min-h-12 items-center justify-center rounded-full bg-paper text-base font-semibold text-ink"
-                onClick={() => step(1)}
-              >
-                Next
-              </button>
-            </div>
+            ))}
           </div>
-        ) : null}
-      </dialog>
+        </div>
+
+        <p className="sr-only" aria-live="polite">
+          Clip {index + 1} of {count}
+        </p>
+
+        <div
+          className="relative mx-auto mt-8 h-11"
+          style={{ width: count * PILL }}
+          role="group"
+          aria-label="Choose a clip"
+        >
+          <span
+            className="pointer-events-none absolute top-1/2 left-0 h-2 w-14 rounded-full bg-marigold"
+            style={{
+              transform: `translate3d(${index * PILL + 11 - 28}px, -50%, 0)`,
+              transition: glideSeconds ? `transform ${glideSeconds}s ease` : "none",
+            }}
+          />
+          {farmVideos.map((video, clipIndex) => (
+            <button
+              key={video.src}
+              type="button"
+              data-carousel-control=""
+              className="absolute top-0 inline-flex h-11 w-[22px] cursor-pointer items-center justify-center"
+              style={{ left: clipIndex * PILL }}
+              aria-label={`Show ${video.title}`}
+              aria-current={clipIndex === index ? "true" : undefined}
+              onClick={() => goTo(clipIndex)}
+            >
+              <span className="block h-2 w-2.5 rounded-full bg-paper/40" />
+            </button>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -204,8 +309,23 @@ export function VideoCarousel() {
 
 function PlayIcon() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="ml-0.5 size-6">
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="ml-1 size-8">
       <path d="M8 6.2v11.6l9.2-5.8L8 6.2z" fill="currentColor" />
+    </svg>
+  );
+}
+
+function Arrow() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-10">
+      <path
+        d="M5 12h12M13 6l6 6-6 6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
