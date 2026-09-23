@@ -4,7 +4,6 @@ import Image from "next/image";
 import {
   useCallback,
   useEffect,
-  useId,
   useRef,
   useState,
   useSyncExternalStore,
@@ -14,7 +13,6 @@ import { Reveal } from "@/components/reveal";
 import { galleryPhotos } from "@/lib/media";
 
 const INTERVAL_MS = 6500;
-const HOLD_MS = 8000;
 
 function subscribeToMotion(onChange: () => void) {
   const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -27,50 +25,67 @@ function motionSnapshot() {
 }
 
 export function PhotoCarousel() {
-  const [index, setIndex] = useState(0);
-  const [direction, setDirection] = useState<"next" | "prev">("next");
-  const [lightbox, setLightbox] = useState(false);
-  const [hovered, setHovered] = useState(false);
-  const [focused, setFocused] = useState(false);
+  const [frame, setFrame] = useState({ index: 0, previous: 0 });
   const [inView, setInView] = useState(false);
-  const [holding, setHolding] = useState(false);
-  const [userPaused, setUserPaused] = useState(false);
+  const [userTick, setUserTick] = useState(0);
+  const [step, setStep] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
-  const holdTimer = useRef<number | null>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const slideRef = useRef<HTMLDivElement>(null);
   const swipe = useRef<{ x: number; y: number } | null>(null);
-  const dragged = useRef(false);
-  const titleId = useId();
   const count = galleryPhotos.length;
-  const photo = galleryPhotos[index];
-  const nextPhoto = galleryPhotos[(index + 1) % count];
+  const index = frame.index;
   const reduceMotion = useSyncExternalStore(subscribeToMotion, motionSnapshot, () => false);
-  const paused = reduceMotion || userPaused || hovered || focused || holding || !inView || lightbox;
+  const paused = reduceMotion || !inView;
+  const distance = Math.abs(index - frame.previous);
+  const wrapped = distance === count - 1;
+  const glideSeconds = wrapped ? 0 : Math.min(0.42 * Math.max(distance, 1), 2.4);
 
-  const holdAuto = useCallback(() => {
-    setHolding(true);
-    if (holdTimer.current) window.clearTimeout(holdTimer.current);
-    holdTimer.current = window.setTimeout(() => setHolding(false), HOLD_MS);
+  const markInteraction = useCallback(() => {
+    setUserTick((tick) => tick + 1);
   }, []);
 
-  const go = useCallback(
-    (nextIndex: number, nextDirection: "next" | "prev") => {
-      setDirection(nextDirection);
-      setIndex((nextIndex + count) % count);
+  const goTo = useCallback(
+    (nextIndex: number) => {
+      markInteraction();
+      setFrame((current) => {
+        const next = (nextIndex + count) % count;
+        if (next === current.index) return current;
+        return { index: next, previous: current.index };
+      });
     },
-    [count],
+    [count, markInteraction],
   );
 
   const showPrevious = useCallback(() => {
-    holdAuto();
-    go(index - 1, "prev");
-  }, [go, holdAuto, index]);
+    markInteraction();
+    setFrame((current) => ({
+      index: (current.index - 1 + count) % count,
+      previous: current.index,
+    }));
+  }, [count, markInteraction]);
 
   const showNext = useCallback(() => {
-    holdAuto();
-    go(index + 1, "next");
-  }, [go, holdAuto, index]);
+    markInteraction();
+    setFrame((current) => ({
+      index: (current.index + 1) % count,
+      previous: current.index,
+    }));
+  }, [count, markInteraction]);
+
+  useEffect(() => {
+    const slide = slideRef.current;
+    const track = trackRef.current;
+    if (!slide || !track) return;
+    const measure = () => {
+      const gap = Number.parseFloat(getComputedStyle(track).columnGap) || 0;
+      setStep(slide.getBoundingClientRect().width + gap);
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(slide);
+    observer.observe(track);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const node = rootRef.current;
@@ -88,46 +103,15 @@ export function PhotoCarousel() {
   useEffect(() => {
     if (paused) return;
     const id = window.setInterval(() => {
-      setDirection("next");
-      setIndex((current) => (current + 1) % count);
+      setFrame((current) => ({
+        index: (current.index + 1) % count,
+        previous: current.index,
+      }));
     }, INTERVAL_MS);
     return () => window.clearInterval(id);
-  }, [paused, count]);
-
-  useEffect(() => {
-    return () => {
-      if (holdTimer.current) window.clearTimeout(holdTimer.current);
-    };
-  }, []);
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    if (lightbox && !dialog.open) {
-      dialog.showModal();
-      closeRef.current?.focus();
-    } else if (!lightbox && dialog.open) {
-      dialog.close();
-    }
-  }, [lightbox]);
-
-  useEffect(() => {
-    if (!lightbox) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        showPrevious();
-      } else if (event.key === "ArrowRight") {
-        event.preventDefault();
-        showNext();
-      }
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [lightbox, showNext, showPrevious]);
+  }, [paused, count, userTick]);
 
   function onKeyDown(event: ReactKeyboardEvent<HTMLElement>) {
-    if ((event.target as HTMLElement).closest("dialog")) return;
     if (event.key === "ArrowLeft") {
       event.preventDefault();
       showPrevious();
@@ -141,199 +125,136 @@ export function PhotoCarousel() {
     <section
       id="gallery"
       aria-labelledby="gallery-heading"
-      className="bg-[linear-gradient(180deg,#f6efe3_0%,#f3e7d4_100%)] text-ink"
+      className="overflow-hidden bg-[linear-gradient(180deg,#f6efe3_0%,#f3e7d4_100%)] text-ink"
     >
-    <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20 lg:py-24">
-      <Reveal>
-        <p className="kicker text-terracotta-dark">Gallery</p>
-        <h2
-          id="gallery-heading"
-          className="mt-3 font-sans text-4xl font-semibold leading-[1.05] tracking-tight text-ink sm:text-5xl"
-        >
-          Life in the pens
-        </h2>
-      </Reveal>
-    <div
-      ref={rootRef}
-      className="mt-8"
-      aria-roledescription="carousel"
-      aria-label="Farm photographs"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setFocused(true)}
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
-      }}
-      onKeyDown={onKeyDown}
-    >
+      <div className="mx-auto max-w-3xl px-5 pt-16 text-center sm:px-8 sm:pt-20 lg:pt-24">
+        <Reveal>
+          <p className="kicker text-terracotta-dark">Gallery</p>
+          <h2
+            id="gallery-heading"
+            className="mt-3 font-sans text-4xl font-semibold leading-[1.05] tracking-tight text-ink sm:text-5xl"
+          >
+            Life in the pens
+          </h2>
+        </Reveal>
+      </div>
+
       <div
-        className="overflow-hidden rounded-[1.25rem] bg-cream-deep shadow-[0_24px_40px_-28px_rgb(44_22_12/0.45)] ring-1 ring-line"
-        onPointerDown={(event) => {
-          if ((event.target as HTMLElement).closest("[data-carousel-control]")) return;
-          if (event.button !== 0) return;
-          swipe.current = { x: event.clientX, y: event.clientY };
-          dragged.current = false;
-        }}
-        onPointerUp={(event) => {
-          if (!swipe.current) return;
-          const dx = event.clientX - swipe.current.x;
-          const dy = event.clientY - swipe.current.y;
-          swipe.current = null;
-          if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return;
-          dragged.current = true;
-          if (dx < 0) showNext();
-          else showPrevious();
-        }}
-        onPointerCancel={() => {
-          swipe.current = null;
-        }}
+        ref={rootRef}
+        className="mx-auto mt-10 w-full max-w-[90rem] px-5 pb-16 sm:px-8 sm:pb-20 lg:pb-24"
+        aria-roledescription="carousel"
+        aria-label="Farm photographs"
+        onKeyDown={onKeyDown}
       >
-        <button
-          type="button"
-          className="relative block aspect-[20/9] w-full text-left"
-          aria-label={photo.alt}
-          onClick={() => {
-            if (dragged.current) {
-              dragged.current = false;
-              return;
-            }
-            setLightbox(true);
+        <div
+          className="overflow-hidden"
+          onPointerDown={(event) => {
+            if ((event.target as HTMLElement).closest("[data-carousel-control]")) return;
+            if (event.button !== 0) return;
+            swipe.current = { x: event.clientX, y: event.clientY };
+          }}
+          onPointerUp={(event) => {
+            if (!swipe.current) return;
+            const dx = event.clientX - swipe.current.x;
+            const dy = event.clientY - swipe.current.y;
+            swipe.current = null;
+            if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return;
+            if (dx < 0) showNext();
+            else showPrevious();
+          }}
+          onPointerCancel={() => {
+            swipe.current = null;
           }}
         >
-          <Image
-            key={photo.src}
-            src={photo.src}
-            alt=""
-            fill
-            sizes="(min-width: 1152px) 72rem, 100vw"
-            className={`object-contain ${direction === "next" ? "reel-next" : "reel-prev"}`}
-            preload={index === 0}
-          />
-          <Image
-            src={nextPhoto.src}
-            alt=""
-            fill
-            sizes="(min-width: 1152px) 72rem, 100vw"
-            className="pointer-events-none object-contain opacity-0"
-            aria-hidden
-          />
-        </button>
-      </div>
-
-      {reduceMotion ? null : (
-        <div className="mt-3 h-0.5 overflow-hidden rounded-full bg-ink/10" aria-hidden="true">
           <div
-            key={index}
-            className="reel-progress h-full w-full origin-left bg-marigold"
-            style={{ animationPlayState: paused ? "paused" : "running" }}
+            ref={trackRef}
+            className="flex gap-5"
+            style={{
+              transform: step ? `translate3d(${-index * step}px, 0, 0)` : undefined,
+              transition: glideSeconds ? `transform ${glideSeconds}s ease` : "none",
+            }}
+          >
+            {galleryPhotos.map((item, photoIndex) => (
+              <div
+                key={item.src}
+                ref={photoIndex === 0 ? slideRef : undefined}
+                className="group relative aspect-[1.863] w-[calc((100%-6.5rem)*0.696)] shrink-0 cursor-pointer overflow-hidden rounded-xl bg-cream-deep"
+                aria-current={photoIndex === index ? "true" : undefined}
+                onClick={showNext}
+              >
+                <Image
+                  src={item.src}
+                  alt={item.alt}
+                  fill
+                  sizes="(min-width: 1024px) 48rem, 70vw"
+                  className="pen-card-img object-cover object-center"
+                  preload={photoIndex < 2}
+                />
+                <span className="pen-card-shade pointer-events-none absolute inset-0" />
+                {photoIndex === index ? (
+                  <button
+                    type="button"
+                    data-carousel-control=""
+                    className="absolute top-1/2 left-1/2 grid size-24 -translate-x-1/2 -translate-y-1/2 -rotate-45 cursor-pointer place-items-center rounded-full text-paper opacity-0 transition duration-300 group-hover:rotate-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100"
+                    aria-label="Next photograph"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      showNext();
+                    }}
+                  >
+                    <Arrow />
+                  </button>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <p className="sr-only" aria-live="polite">
+          Photo {index + 1} of {count}
+        </p>
+
+        <div
+          className="relative mx-auto mt-8 h-11"
+          style={{ width: count * 22 }}
+          role="group"
+          aria-label="Choose a photograph"
+        >
+          <span
+            className="pointer-events-none absolute top-1/2 left-0 h-2 w-14 rounded-full bg-olive"
+            style={{
+              transform: `translate3d(${index * 22 + 11 - 28}px, -50%, 0)`,
+              transition: glideSeconds ? `transform ${glideSeconds}s ease` : "none",
+            }}
           />
-        </div>
-      )}
-
-      <div className="mt-4 flex items-center justify-between gap-2">
-        <button
-          type="button"
-          className="inline-flex min-h-11 items-center justify-center gap-1 rounded-full bg-wood px-3 text-sm font-semibold text-cream transition duration-200 hover:bg-ink"
-          data-carousel-control=""
-          onClick={showPrevious}
-        >
-          <Chevron direction="left" />
-          <span className="hidden min-[400px]:inline">Previous</span>
-          <span className="sr-only min-[400px]:hidden">Previous</span>
-        </button>
-        <div className="flex items-center gap-2">
-          <p className="text-base font-semibold text-ink tabular-nums" aria-live="polite">
-            {index + 1} / {count}
-          </p>
-          {reduceMotion ? null : (
+          {galleryPhotos.map((item, photoIndex) => (
             <button
+              key={item.src}
               type="button"
-              className="inline-flex min-h-11 items-center rounded-full border border-ink/20 px-3 text-sm font-semibold text-ink"
               data-carousel-control=""
-              aria-pressed={userPaused}
-              onClick={() => setUserPaused((value) => !value)}
+              className="absolute top-0 inline-flex h-11 w-[22px] cursor-pointer items-center justify-center"
+              style={{ left: photoIndex * 22 }}
+              aria-label={`Show photograph ${photoIndex + 1}`}
+              aria-current={photoIndex === index ? "true" : undefined}
+              onClick={() => goTo(photoIndex)}
             >
-              {userPaused ? "Play" : "Pause"}
+              <span className="block h-2 w-2.5 rounded-full bg-olive/35" />
             </button>
-          )}
+          ))}
         </div>
-        <button
-          type="button"
-          className="inline-flex min-h-11 items-center justify-center gap-1 rounded-full bg-wood px-3 text-sm font-semibold text-cream transition duration-200 hover:bg-ink"
-          data-carousel-control=""
-          onClick={showNext}
-        >
-          <span className="hidden min-[400px]:inline">Next</span>
-          <span className="sr-only min-[400px]:hidden">Next</span>
-          <Chevron direction="right" />
-        </button>
       </div>
-
-      <p className="mt-3 max-w-3xl text-base leading-relaxed text-ink-soft">{photo.alt}</p>
-
-      <dialog
-        ref={dialogRef}
-        aria-labelledby={titleId}
-        className="gallery-dialog"
-        onClose={() => setLightbox(false)}
-        onClick={(event) => {
-          if (event.target === event.currentTarget) setLightbox(false);
-        }}
-      >
-        <div className="flex max-h-[100dvh] flex-col overflow-y-auto">
-          <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
-            <p id={titleId} className="text-sm text-cream">
-              Photo {index + 1} of {count}
-            </p>
-            <button
-              ref={closeRef}
-              type="button"
-              className="btn min-h-11 px-4 text-sm"
-              onClick={() => setLightbox(false)}
-            >
-              Close
-            </button>
-          </div>
-          <div className="relative aspect-[20/9] w-full bg-wood">
-            <Image
-              src={photo.src}
-              alt={photo.alt}
-              fill
-              sizes="(min-width: 1024px) 64rem, 100vw"
-              className="object-contain"
-            />
-          </div>
-          <div className="px-4 pt-3 sm:px-5">
-            <p className="text-sm leading-relaxed text-cream sm:text-base">{photo.alt}</p>
-          </div>
-          <div className="grid grid-cols-2 gap-3 px-4 py-4 sm:px-5">
-            <button
-              type="button"
-              className="inline-flex min-h-12 items-center justify-center rounded-md border border-cream/30 text-base font-semibold text-paper"
-              onClick={showPrevious}
-            >
-              Previous
-            </button>
-            <button type="button" className="btn" onClick={showNext}>
-              Next
-            </button>
-          </div>
-        </div>
-      </dialog>
-    </div>
-    </div>
     </section>
   );
 }
 
-function Chevron({ direction }: { direction: "left" | "right" }) {
+function Arrow() {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-5 shrink-0">
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="size-20">
       <path
-        d={direction === "left" ? "M14.5 6.5L9 12l5.5 5.5" : "M9.5 6.5L15 12l-5.5 5.5"}
+        d="M5 12h12M13 6l6 6-6 6"
         fill="none"
         stroke="currentColor"
-        strokeWidth="1.75"
+        strokeWidth="1.35"
         strokeLinecap="round"
         strokeLinejoin="round"
       />

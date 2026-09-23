@@ -178,6 +178,26 @@ body {
   animation: reel-progress 6.5s linear forwards;
 }
 
+.pen-card-img {
+  transition: transform 0.5s linear;
+}
+
+.group:hover .pen-card-img,
+.group:focus-visible .pen-card-img {
+  transform: scale(1.08) rotate(-2deg);
+}
+
+.pen-card-shade {
+  background: #102818;
+  opacity: 0.12;
+  transition: opacity 0.3s linear;
+}
+
+.group:hover .pen-card-shade,
+.group:focus-visible .pen-card-shade {
+  opacity: 0.55;
+}
+
 @keyframes reel-progress {
   from {
     transform: scaleX(0);
@@ -192,35 +212,6 @@ body {
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-}
-
-.gallery-dialog {
-  display: none;
-  margin: auto;
-  width: min(100% - 1.5rem, 64rem);
-  max-height: calc(100dvh - 1.5rem);
-  border: 0;
-  padding: 0;
-  background: var(--color-wood);
-  color: var(--color-cream);
-}
-
-.gallery-dialog[open] {
-  display: flex;
-  flex-direction: column;
-}
-
-.gallery-dialog::backdrop {
-  background: rgb(20 16 12 / 78%);
-}
-
-@media (min-width: 640px) {
-  .gallery-dialog {
-    height: auto;
-    max-height: 92dvh;
-    max-width: 64rem;
-    border-radius: 1rem;
-  }
 }
 
 .clip-dialog {
@@ -325,6 +316,12 @@ body {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+  }
+
+  .pen-card-img,
+  .group:hover .pen-card-img,
+  .group:focus-visible .pen-card-img {
+    transform: none;
   }
 
   .btn:hover,
