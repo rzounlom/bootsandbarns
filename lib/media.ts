@@ -169,7 +169,9 @@ export const founders = [
     width: 919,
     height: 1000,
     alt: "Portrait of Sifon-Glory Benson.",
-    objectPosition: "center 18%",
+    objectPosition: "center top",
+    // Lowers her crown to the same height as Senyie's inside the circle.
+    shift: "12.7%",
   },
   {
     name: "Senyie Benson",

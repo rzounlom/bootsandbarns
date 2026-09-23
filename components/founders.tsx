@@ -56,6 +56,7 @@ export function Founders() {
                       ...("frameWidth" in person
                         ? { width: person.frameWidth, height: "auto" }
                         : {}),
+                      ...("shift" in person ? { marginTop: person.shift } : {}),
                     }}
                   />
                 </div>
