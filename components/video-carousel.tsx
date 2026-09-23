@@ -54,6 +54,8 @@ export function VideoCarousel() {
   }
 
   function step(direction: number) {
+    const player = videoRef.current;
+    if (player) player.pause();
     setActive((current) => {
       if (current === null) return current;
       return (current + direction + farmVideos.length) % farmVideos.length;
@@ -75,32 +77,28 @@ export function VideoCarousel() {
     <section
       id="videos"
       aria-labelledby="videos-heading"
-      className="bg-[linear-gradient(180deg,#3a2418_0%,#2c160c_55%,#24160f_100%)] text-paper"
+      className="bg-[linear-gradient(165deg,#1a6b3a_0%,#0f4d2c_48%,#102818_100%)] text-paper"
     >
       <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20 lg:py-24">
-        <Reveal className="max-w-2xl">
-          <p className="kicker text-marigold">From the pens</p>
+        <Reveal>
+          <p className="kicker text-marigold">Videos</p>
           <h2
             id="videos-heading"
             className="mt-3 font-sans text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl"
           >
-            Videos
+            Clips from the farm
           </h2>
-          {/* <p className="mt-4 max-w-xl text-[1.075rem] leading-relaxed text-cream sm:text-lg">
-            Five clips from the farm. Nothing plays until you choose one.
-          </p> */}
+          <p className="mt-4 max-w-xl text-[1.075rem] leading-relaxed text-cream sm:text-lg">
+            Five clips. Choose one to play.
+          </p>
         </Reveal>
-
-        <ul className="mt-10 flex flex-wrap justify-center gap-4 sm:gap-5">
+        <ul className="mt-8 grid grid-cols-2 items-stretch gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
           {farmVideos.map((video, index) => (
-            <li
-              key={video.src}
-              className="w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-0.9rem)] lg:w-[calc(20%-1rem)]"
-            >
-              <Reveal delay={index * 60} className="h-full">
+            <li key={video.src} className="flex min-w-0">
+              <Reveal delay={index * 60} className="flex h-full w-full">
                 <button
                   type="button"
-                  className="group flex h-full w-full flex-col overflow-hidden rounded-2xl bg-[rgb(20_12_8/0.55)] text-left ring-1 ring-white/12 transition duration-300 hover:-translate-y-1 hover:ring-marigold/80"
+                  className="group flex h-full w-full flex-col overflow-hidden rounded-2xl bg-[rgb(20_12_8/0.55)] text-left ring-1 ring-white/12 transition duration-300 hover:-translate-y-1 hover:ring-marigold/80 focus-visible:ring-marigold"
                   aria-haspopup="dialog"
                   aria-label={`Play ${video.title}`}
                   onClick={(event) => openClip(index, event.currentTarget)}
@@ -134,7 +132,6 @@ export function VideoCarousel() {
             </li>
           ))}
         </ul>
-      </div>
 
       <dialog
         ref={dialogRef}
@@ -203,6 +200,7 @@ export function VideoCarousel() {
           </div>
         ) : null}
       </dialog>
+      </div>
     </section>
   );
 }

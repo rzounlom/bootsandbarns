@@ -144,6 +144,49 @@ body {
   animation: carousel-in 280ms ease;
 }
 
+@keyframes reel-next {
+  from {
+    opacity: 0.45;
+    transform: translateX(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes reel-prev {
+  from {
+    opacity: 0.45;
+    transform: translateX(-1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.reel-next {
+  animation: reel-next 0.45s ease;
+}
+
+.reel-prev {
+  animation: reel-prev 0.45s ease;
+}
+
+.reel-progress {
+  animation: reel-progress 6.5s linear forwards;
+}
+
+@keyframes reel-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
 .kicker {
   font-size: 0.8rem;
   font-weight: 700;
