@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Boots and Barns Animal Farm
 
-## Getting Started
+A single-page site for Boots and Barns Animal Farm in Ikot-Ekpene, Nigeria. Built with Next.js, TypeScript, and Tailwind CSS.
 
-First, run the development server:
+## Local development
+
+This project uses pnpm.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+pnpm lint
+pnpm build
+pnpm start
+```
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Import the repository in Vercel and use the default Next.js settings. The production build command is `pnpm build`. No environment variables are required.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The intended domain is `bootsandbarns.com`. Connect that domain in the Vercel project when you have access to it. This repository does not assume the domain is already attached.
+
+## Media
+
+Animal photos in `public/img/animals` were resized to a 2400-pixel long edge and saved as JPEG quality 80 so the gallery stays sharp without shipping the original 4–7 MB files. Full-resolution copies, if preserved on this machine, live in `media/originals` and are not part of the site.
+
+The five farm videos keep their original picture. The WhatsApp filenames, which contained spaces, were renamed to safe paths under `public/videos`, and poster frames are in `public/videos/posters`. Videos use `preload="none"` so they download only when someone presses play.

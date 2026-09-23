@@ -1,26 +1,129 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-source-sans), "Source Sans 3", "Segoe UI", sans-serif;
+  --font-serif: var(--font-source-serif), "Source Serif 4", Georgia, serif;
+  --color-cream: #f6f1e8;
+  --color-cream-deep: #efe4d4;
+  --color-paper: #fbf8f3;
+  --color-ink: #3a2a22;
+  --color-ink-soft: #5c4638;
+  --color-terracotta: #a35c45;
+  --color-terracotta-dark: #8a4834;
+  --color-sage: #5c6b50;
+  --color-line: #e3d6c4;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5.25rem;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-terracotta-dark);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: #e7cfc3;
+  color: var(--color-ink);
+}
+
+.gallery-dialog {
+  display: none;
+  margin: auto;
+  width: min(100% - 1.5rem, 64rem);
+  max-height: calc(100dvh - 1.5rem);
+  border: 0;
+  padding: 0;
+  background: var(--color-ink);
+  color: var(--color-cream);
+}
+
+.gallery-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.gallery-dialog::backdrop {
+  background: rgb(0 0 0 / 72%);
+}
+
+@media (min-width: 640px) {
+  .gallery-dialog {
+    height: auto;
+    max-height: 92dvh;
+    max-width: 64rem;
+    border-radius: 0.5rem;
+  }
+}
+
+@media (max-height: 520px) {
+  .hero-grid {
+    min-height: 0;
+  }
+
+  .hero-copy {
+    justify-content: flex-start;
+    padding-top: 1rem;
+    padding-bottom: 1.25rem;
+  }
+
+  .hero-title {
+    font-size: 1.7rem;
+  }
+
+  .hero-photo {
+    min-height: 0;
+  }
+}
+
+@media (max-height: 520px) and (max-width: 767px) {
+  .hero-photo {
+    aspect-ratio: 2 / 1;
+    max-height: 5.25rem;
+    height: auto;
+  }
+
+  .hero-copy {
+    padding-top: 0.65rem;
+    padding-bottom: 0.85rem;
+  }
+
+  .hero-title {
+    margin-top: 0.3rem;
+    font-size: 1.5rem;
+  }
+
+  .hero-lede {
+    margin-top: 0.4rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+
+  .hero-cta {
+    margin-top: 0.7rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
