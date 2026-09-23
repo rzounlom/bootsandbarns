@@ -40,16 +40,17 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-paper/95 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5 sm:h-[4.5rem] sm:px-8">
+      <div className="h-1 bg-terracotta" />
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-5 sm:h-[4.5rem] sm:px-8">
         <a
           href="#top"
           className="min-w-0 rounded-sm leading-tight"
           onClick={() => setOpen(false)}
         >
-          <span className="block font-serif text-[1.15rem] font-semibold tracking-tight text-ink sm:text-2xl">
+          <span className="block font-serif text-xl font-semibold tracking-tight text-ink sm:text-2xl">
             Boots and Barns
           </span>
-          <span className="block text-sm text-ink-soft">Animal Farm</span>
+          <span className="block text-sm font-semibold text-terracotta-dark">Animal Farm</span>
         </a>
 
         <nav aria-label="Page" className="hidden md:block">
@@ -58,7 +59,7 @@ export function Header() {
               <li key={link.href}>
                 <a
                   href={link.href}
-                  className="inline-flex min-h-11 items-center rounded-md px-3 text-[0.95rem] font-medium text-ink-soft hover:bg-cream hover:text-ink"
+                  className="inline-flex min-h-11 items-center rounded-full px-3 text-base font-semibold text-ink-soft hover:bg-cream hover:text-ink"
                 >
                   {link.label}
                 </a>
@@ -110,7 +111,7 @@ export function Header() {
               <li key={link.href} className="border-b border-line last:border-b-0">
                 <a
                   href={link.href}
-                  className="flex min-h-12 items-center text-lg text-ink"
+                  className="flex min-h-14 items-center font-serif text-2xl text-ink"
                   onClick={() => setOpen(false)}
                 >
                   {link.label}

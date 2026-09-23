@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
-import { Source_Sans_3, Source_Serif_4 } from "next/font/google";
+import { Fraunces, Nunito_Sans } from "next/font/google";
 import "./globals.css";
 
-const sourceSans = Source_Sans_3({
+const fraunces = Fraunces({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-source-sans",
+  weight: ["500", "600", "700"],
+  variable: "--font-fraunces",
   display: "swap",
 });
 
-const sourceSerif = Source_Serif_4({
+const nunito = Nunito_Sans({
   subsets: ["latin"],
-  weight: ["500", "600"],
-  variable: "--font-source-serif",
+  weight: ["400", "600", "700"],
+  variable: "--font-nunito",
   display: "swap",
 });
 
@@ -45,7 +45,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${sourceSans.variable} ${sourceSerif.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${nunito.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-cream font-sans text-ink">{children}</body>
     </html>

@@ -58,26 +58,29 @@ export function Gallery() {
   const photo = active === null ? null : galleryPhotos[active];
 
   return (
-    <section id="gallery" aria-labelledby="gallery-heading" className="scroll-mt-24 bg-paper">
+    <section id="gallery" aria-labelledby="gallery-heading" className="scroll-mt-24 bg-cream">
       <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20 lg:py-28">
-        <div className="max-w-2xl">
-          <h2
-            id="gallery-heading"
-            className="font-serif text-3xl font-semibold tracking-tight text-ink sm:text-4xl"
-          >
-            Gallery
-          </h2>
-          <p className="mt-4 text-base leading-relaxed text-ink-soft sm:text-lg">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="kicker text-terracotta-dark">Gallery</p>
+            <h2
+              id="gallery-heading"
+              className="mt-3 font-serif text-4xl font-semibold leading-[1.08] tracking-tight text-ink sm:text-5xl lg:text-6xl"
+            >
+              Life in the pens
+            </h2>
+          </div>
+          <p className="max-w-sm text-[1.075rem] leading-relaxed text-ink-soft sm:text-lg">
             Photographs and short clips from the pens.
           </p>
         </div>
 
-        <ul className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5">
+        <ul className="mt-10 grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-2">
           {galleryPhotos.map((item, index) => (
-            <li key={item.src}>
+            <li key={item.src} className={index === 0 ? "lg:col-span-2" : undefined}>
               <button
                 type="button"
-                className="block w-full overflow-hidden rounded-md bg-cream-deep text-left"
+                className="photo-tile block w-full overflow-hidden rounded-[1.15rem] bg-cream-deep text-left shadow-[0_16px_36px_-28px_rgb(36_25_16/0.7)] sm:rounded-[1.35rem]"
                 aria-label={item.alt}
                 onClick={() => setActive(index)}
               >
@@ -86,7 +89,7 @@ export function Gallery() {
                   alt={item.alt}
                   width={item.width}
                   height={item.height}
-                  sizes="(min-width: 1024px) 36rem, 100vw"
+                  sizes={index === 0 ? "(min-width: 1024px) 72rem, 100vw" : "(min-width: 1024px) 36rem, 100vw"}
                   className="h-auto w-full"
                 />
               </button>
@@ -94,13 +97,13 @@ export function Gallery() {
           ))}
         </ul>
 
-        <div className="mt-16 sm:mt-20">
-          <h3 className="font-serif text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-            Videos
-          </h3>
-          <p className="mt-3 max-w-2xl text-base leading-relaxed text-ink-soft sm:text-lg">
-            Five clips from the farm. Nothing plays until you start it.
-          </p>
+        <div className="mt-14 rounded-[1.5rem] bg-olive px-5 py-8 text-paper sm:mt-20 sm:px-8 sm:py-10">
+          <div>
+            <h3 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Videos</h3>
+            <p className="mt-3 max-w-2xl text-[1.075rem] leading-relaxed text-cream sm:text-lg">
+              Five clips from the farm. Nothing plays until you start it.
+            </p>
+          </div>
 
           <ul className="mt-8 flex flex-wrap justify-center gap-5">
             {farmVideos.map((video) => (
@@ -108,10 +111,10 @@ export function Gallery() {
                 key={video.src}
                 className="w-full min-[540px]:w-[calc(50%-0.7rem)] lg:w-[calc(33.333%-0.9rem)]"
               >
-                <figure className="overflow-hidden rounded-md bg-[#2a221c] ring-1 ring-black/10">
+                <figure className="overflow-hidden rounded-[1.15rem] bg-olive-mid shadow-[0_16px_30px_-24px_rgb(0_0_0/0.8)]">
                   <div className="relative aspect-[9/16] w-full">
                     <video
-                      className="absolute inset-0 h-full w-full bg-[#2a221c] object-contain"
+                      className="absolute inset-0 h-full w-full bg-olive-mid object-contain"
                       controls
                       playsInline
                       preload="none"
@@ -121,11 +124,9 @@ export function Gallery() {
                       <source src={video.src} type="video/mp4" />
                     </video>
                   </div>
-                  <figcaption className="bg-paper px-4 py-3">
-                    <p className="font-medium text-ink">{video.title}</p>
-                    <p className="mt-1 text-sm leading-relaxed text-ink-soft">
-                      {video.description}
-                    </p>
+                  <figcaption className="px-4 py-4">
+                    <p className="text-lg font-semibold text-paper">{video.title}</p>
+                    <p className="mt-1 text-base leading-relaxed text-cream/85">{video.description}</p>
                   </figcaption>
                 </figure>
               </li>
@@ -152,7 +153,7 @@ export function Gallery() {
               <button
                 ref={closeRef}
                 type="button"
-                className="inline-flex min-h-11 items-center justify-center rounded-md bg-paper px-4 text-sm font-semibold text-ink"
+                className="btn min-h-11 px-4 text-sm"
                 onClick={close}
               >
                 Close
@@ -183,7 +184,7 @@ export function Gallery() {
               </button>
               <button
                 type="button"
-                className="inline-flex min-h-12 items-center justify-center rounded-md bg-paper text-base font-semibold text-ink"
+                className="btn"
                 onClick={showNext}
               >
                 Next

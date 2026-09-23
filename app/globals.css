@@ -1,22 +1,24 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: var(--font-source-sans), "Source Sans 3", "Segoe UI", sans-serif;
-  --font-serif: var(--font-source-serif), "Source Serif 4", Georgia, serif;
-  --color-cream: #f6f1e8;
-  --color-cream-deep: #efe4d4;
-  --color-paper: #fbf8f3;
-  --color-ink: #3a2a22;
-  --color-ink-soft: #5c4638;
-  --color-terracotta: #a35c45;
-  --color-terracotta-dark: #8a4834;
-  --color-sage: #5c6b50;
-  --color-line: #e3d6c4;
+  --font-sans: var(--font-nunito), "Nunito Sans", "Segoe UI", sans-serif;
+  --font-serif: var(--font-fraunces), Georgia, serif;
+  --color-cream: #f3ecdf;
+  --color-cream-deep: #e8dcc6;
+  --color-paper: #fbf6ee;
+  --color-ink: #241910;
+  --color-ink-soft: #4e3b30;
+  --color-olive: #243328;
+  --color-olive-mid: #3c5344;
+  --color-terracotta: #c4543a;
+  --color-terracotta-dark: #8c3826;
+  --color-marigold: #e2a322;
+  --color-line: #dccbb6;
 }
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 5.25rem;
+  scroll-padding-top: 5.5rem;
 }
 
 body {
@@ -32,8 +34,33 @@ body {
 }
 
 ::selection {
-  background: #e7cfc3;
+  background: #f0c9a4;
   color: var(--color-ink);
+}
+
+.btn {
+  display: inline-flex;
+  min-height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--color-terracotta-dark);
+  padding: 0.65rem 1.4rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fffaf4;
+  box-shadow: 0 10px 24px -16px rgb(36 25 16 / 80%);
+}
+
+.btn:hover {
+  background: #6f2c1d;
+}
+
+.kicker {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
 .gallery-dialog {
@@ -43,7 +70,7 @@ body {
   max-height: calc(100dvh - 1.5rem);
   border: 0;
   padding: 0;
-  background: var(--color-ink);
+  background: var(--color-olive);
   color: var(--color-cream);
 }
 
@@ -53,7 +80,7 @@ body {
 }
 
 .gallery-dialog::backdrop {
-  background: rgb(0 0 0 / 72%);
+  background: rgb(20 16 12 / 78%);
 }
 
 @media (min-width: 640px) {
@@ -61,7 +88,7 @@ body {
     height: auto;
     max-height: 92dvh;
     max-width: 64rem;
-    border-radius: 0.5rem;
+    border-radius: 1rem;
   }
 }
 
@@ -71,13 +98,12 @@ body {
   }
 
   .hero-copy {
-    justify-content: flex-start;
-    padding-top: 1rem;
+    padding-top: 1.25rem;
     padding-bottom: 1.25rem;
   }
 
   .hero-title {
-    font-size: 1.7rem;
+    font-size: 2rem;
   }
 
   .hero-photo {
@@ -87,29 +113,38 @@ body {
 
 @media (max-height: 520px) and (max-width: 767px) {
   .hero-photo {
-    aspect-ratio: 2 / 1;
-    max-height: 5.25rem;
-    height: auto;
+    overflow: hidden;
+  }
+
+  .hero-photo > div {
+    width: 100%;
+    height: 5rem;
+    max-height: 5rem;
+    aspect-ratio: auto;
   }
 
   .hero-copy {
     padding-top: 0.65rem;
-    padding-bottom: 0.85rem;
+    padding-bottom: 0.7rem;
   }
 
   .hero-title {
-    margin-top: 0.3rem;
-    font-size: 1.5rem;
+    margin-top: 0.35rem;
+    font-size: 1.6rem;
   }
 
   .hero-lede {
-    margin-top: 0.4rem;
-    font-size: 0.95rem;
-    line-height: 1.4;
+    margin-top: 0.3rem;
+    font-size: 0.98rem;
+    line-height: 1.35;
   }
 
   .hero-cta {
-    margin-top: 0.7rem;
+    margin-top: 0.55rem;
+  }
+
+  .hero-cta .btn {
+    min-height: 2.75rem;
   }
 }
 

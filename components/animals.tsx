@@ -1,3 +1,8 @@
+import Image from "next/image";
+import { galleryPhotos } from "@/lib/media";
+
+const carePhoto = galleryPhotos.find((photo) => photo.src.includes("081501")) ?? galleryPhotos[0];
+
 const practices = [
   {
     title: "Thoughtful breeding",
@@ -15,40 +20,45 @@ const practices = [
 
 export function Animals() {
   return (
-    <section
-      id="animals"
-      aria-labelledby="animals-heading"
-      className="scroll-mt-24 bg-cream-deep"
-    >
+    <section id="animals" aria-labelledby="animals-heading" className="scroll-mt-24 bg-olive text-paper">
       <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20 lg:py-28">
-        <div className="max-w-2xl">
-          <h2
-            id="animals-heading"
-            className="font-serif text-3xl font-semibold tracking-tight text-ink sm:text-4xl"
-          >
-            Our Animals
-          </h2>
-          <p className="mt-4 text-base leading-relaxed text-ink-soft sm:text-lg">
-            The farm raises pigs. Their care is steady, practical, and close at
-            hand.
-          </p>
+        <div className="grid items-end gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
+          <div>
+            <p className="kicker text-marigold">In the pens</p>
+            <h2
+              id="animals-heading"
+              className="mt-3 font-serif text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl"
+            >
+              Our Animals
+            </h2>
+            <p className="mt-5 max-w-xl text-[1.075rem] leading-relaxed text-cream sm:text-xl">
+              The farm raises pigs. Their care is steady, practical, and close at hand.
+            </p>
+          </div>
+
+          <figure className="overflow-hidden rounded-[1.25rem] bg-olive-mid shadow-[0_18px_40px_-24px_rgb(0_0_0/0.65)] sm:rounded-[1.5rem]">
+              <Image
+                src={carePhoto.src}
+                alt={carePhoto.alt}
+                width={carePhoto.width}
+                height={carePhoto.height}
+                sizes="(min-width: 1024px) 34rem, 100vw"
+                className="h-auto w-full"
+              />
+            </figure>
         </div>
 
-        <ul className="mt-10 grid gap-5 md:grid-cols-3">
-          {practices.map((item) => (
-            <li
-              key={item.title}
-              className="border-t-2 border-terracotta bg-paper px-5 py-6 sm:px-6"
-            >
-              <h3 className="font-serif text-2xl font-medium text-ink">
-                {item.title}
-              </h3>
-              <p className="mt-3 text-base leading-relaxed text-ink-soft">
-                {item.body}
-              </p>
+        <ol className="mt-12 list-none border-t border-white/15 sm:mt-16">
+          {practices.map((item, index) => (
+            <li key={item.title}>
+              <div className="grid gap-3 border-b border-white/15 py-6 sm:grid-cols-[5rem_minmax(0,14rem)_minmax(0,1fr)] sm:items-baseline sm:gap-6 sm:py-8">
+                <p className="font-serif text-3xl text-marigold sm:text-4xl">0{index + 1}</p>
+                <h3 className="font-serif text-2xl font-semibold sm:text-3xl">{item.title}</h3>
+                <p className="text-[1.05rem] leading-relaxed text-cream sm:text-lg">{item.body}</p>
+              </div>
             </li>
           ))}
-        </ul>
+        </ol>
       </div>
     </section>
   );
