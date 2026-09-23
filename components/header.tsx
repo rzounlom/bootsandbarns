@@ -57,7 +57,7 @@ export function Header() {
             className="size-12 shrink-0 sm:size-14"
           />
           <span className="min-w-0 leading-tight">
-            <span className="block font-serif text-lg font-semibold tracking-tight text-ink min-[380px]:text-xl sm:text-2xl">
+            <span className="block font-sans text-lg font-semibold tracking-tight text-ink min-[380px]:text-xl sm:text-2xl">
               Boots and Barns
             </span>
             <span className="block text-sm font-semibold text-terracotta-dark">Animal Farm</span>
@@ -122,7 +122,7 @@ export function Header() {
               <li key={link.href} className="border-b border-line last:border-b-0">
                 <a
                   href={link.href}
-                  className="flex min-h-14 items-center font-serif text-2xl text-ink"
+                  className="flex min-h-14 items-center font-sans text-2xl text-ink"
                   onClick={() => setOpen(false)}
                 >
                   {link.label}

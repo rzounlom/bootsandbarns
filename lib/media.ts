@@ -100,11 +100,16 @@ export const galleryPhotos: GalleryPhoto[] = [
   },
 ];
 
-export const heroPhoto = {
-  src: "/img/animals/IMG_20260917_081413.jpg",
-  alt: "Two pigs standing together in a sunlit corner of a pen at Boots and Barns.",
-  width: 2400,
-  height: 1080,
+/**
+ * Web copy of `BOOTS AND BARNS .mp4` (1920×1080, 11m 42s, with audio).
+ * Scaled to 1280×720, H.264, with the original soundtrack. The source file is unchanged.
+ */
+export const heroVideo = {
+  src: "/videos/boots-and-barns-hero-audio.mp4",
+  poster: "/videos/posters/boots-and-barns-hero.jpg",
+  width: 1280,
+  height: 720,
+  label: "Plantain trees at Boots and Barns, from the farm film.",
 };
 
 /**

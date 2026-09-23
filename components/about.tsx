@@ -18,7 +18,7 @@ export function About() {
             <p className="kicker text-terracotta-dark">About</p>
             <h2
               id="about-heading"
-              className="mt-3 max-w-[12ch] font-serif text-4xl font-semibold leading-[1.08] tracking-tight text-ink sm:text-5xl lg:text-6xl"
+              className="mt-3 max-w-[12ch] font-sans text-4xl font-semibold leading-[1.08] tracking-tight text-ink sm:text-5xl lg:text-6xl"
             >
               The work he started
             </h2>
@@ -55,7 +55,7 @@ export function About() {
         <dl className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-3">
           {facts.map((fact) => (
             <div key={fact.label} className="h-full rounded-2xl border border-line bg-cream px-5 py-5">
-              <dt className="font-serif text-2xl text-olive">{fact.label}</dt>
+              <dt className="font-sans text-2xl font-semibold text-olive">{fact.label}</dt>
               <dd className="mt-2 text-base leading-relaxed text-ink-soft sm:text-[1.05rem]">
                 {fact.value}
               </dd>

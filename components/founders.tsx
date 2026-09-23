@@ -13,7 +13,7 @@ export function Founders() {
           <p className="kicker text-terracotta-dark">Founders</p>
           <h2
             id="founders-heading"
-            className="mt-3 max-w-[12ch] font-serif text-4xl font-semibold leading-[1.08] tracking-tight text-ink sm:text-5xl lg:text-6xl"
+            className="mt-3 max-w-[12ch] font-sans text-4xl font-semibold leading-[1.08] tracking-tight text-ink sm:text-5xl lg:text-6xl"
           >
             Carrying the farm forward
           </h2>
@@ -57,7 +57,7 @@ export function Founders() {
                   }}
                 />
               </div>
-              <p className="mt-6 whitespace-nowrap font-serif text-xl font-semibold text-ink lg:text-2xl">
+              <p className="mt-6 whitespace-nowrap font-sans text-xl font-semibold text-ink lg:text-2xl">
                 {person.name}
               </p>
             </li>

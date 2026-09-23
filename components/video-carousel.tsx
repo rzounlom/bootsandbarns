@@ -53,7 +53,7 @@ export function VideoCarousel() {
         <div>
           <h2
             id="videos-heading"
-            className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl"
+            className="font-sans text-3xl font-semibold tracking-tight sm:text-4xl"
           >
             Videos
           </h2>

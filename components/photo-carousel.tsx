@@ -90,7 +90,7 @@ export function PhotoCarousel() {
             <p className="kicker text-terracotta-dark">Gallery</p>
             <h2
               id="gallery-heading"
-              className="mt-3 font-serif text-4xl font-semibold leading-[1.08] tracking-tight text-ink sm:text-5xl lg:text-6xl"
+              className="mt-3 font-sans text-4xl font-semibold leading-[1.08] tracking-tight text-ink sm:text-5xl lg:text-6xl"
             >
               Life in the pens
             </h2>

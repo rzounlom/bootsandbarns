@@ -42,4 +42,6 @@ next-env.d.ts
 
 # local previews and full-resolution originals
 .tmp-preview
+.tmp-ffmpeg
 /media/originals
+/public/videos/BOOTS AND BARNS .mp4

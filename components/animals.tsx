@@ -27,7 +27,7 @@ export function Animals() {
             <p className="kicker text-marigold">In the pens</p>
             <h2
               id="animals-heading"
-              className="mt-3 font-serif text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl"
+              className="mt-3 font-sans text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl"
             >
               Our Animals
             </h2>
@@ -52,8 +52,8 @@ export function Animals() {
           {practices.map((item, index) => (
             <li key={item.title}>
               <div className="grid gap-3 border-b border-white/15 py-6 sm:grid-cols-[5rem_minmax(0,14rem)_minmax(0,1fr)] sm:items-baseline sm:gap-6 sm:py-8">
-                <p className="font-serif text-3xl text-marigold sm:text-4xl">0{index + 1}</p>
-                <h3 className="font-serif text-2xl font-semibold sm:text-3xl">{item.title}</h3>
+                <p className="font-sans text-3xl font-semibold text-marigold sm:text-4xl">0{index + 1}</p>
+                <h3 className="font-sans text-2xl font-semibold sm:text-3xl">{item.title}</h3>
                 <p className="text-[1.05rem] leading-relaxed text-cream sm:text-lg">{item.body}</p>
               </div>
             </li>
