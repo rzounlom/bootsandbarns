@@ -156,10 +156,12 @@ export const founders = [
   },
   {
     name: "Senyie Benson",
-    src: "/img/founders/Senyie-Profile-Pic.png",
-    width: 1000,
-    height: 1000,
+    src: "/img/founders/senyie-benson-tan.png",
+    width: 720,
+    height: 1278,
     alt: "Portrait of Senyie Benson.",
-    objectPosition: "center 42%",
+    objectPosition: "center top",
+    frameWidth: "78%",
+    frame: "#e8dcc6",
   },
 ] as const;
