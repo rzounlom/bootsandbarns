@@ -21,6 +21,7 @@ export function PhotoCarousel() {
   const titleId = useId();
   const swipe = useRef<{ x: number; y: number } | null>(null);
   const dragged = useRef(false);
+  const stripRef = useRef<HTMLDivElement>(null);
   const count = galleryPhotos.length;
   const photo = galleryPhotos[index];
 
@@ -65,6 +66,22 @@ export function PhotoCarousel() {
     return () => document.removeEventListener("keydown", onKey);
   }, [lightbox, showNext, showPrevious]);
 
+  useEffect(() => {
+    const strip = stripRef.current;
+    const thumb = strip?.querySelector<HTMLElement>(
+      `[data-photo-index="${index}"]`,
+    );
+    if (!strip || !thumb) return;
+    const left =
+      thumb.offsetLeft - strip.clientWidth / 2 + thumb.clientWidth / 2;
+    strip.scrollTo({
+      left,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
+  }, [index]);
+
   function onKeyDown(event: ReactKeyboardEvent<HTMLElement>) {
     if ((event.target as HTMLElement).closest("dialog")) return;
     if (event.key === "ArrowLeft") {
@@ -82,7 +99,7 @@ export function PhotoCarousel() {
       aria-roledescription="carousel"
       aria-label="Photo gallery"
       aria-labelledby="gallery-heading"
-      className="scroll-mt-24 overflow-x-clip bg-cream"
+      className="overflow-x-clip bg-cream"
       onKeyDown={onKeyDown}
     >
       <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20 lg:py-28">
@@ -91,7 +108,7 @@ export function PhotoCarousel() {
             <p className="kicker text-terracotta-dark">Gallery</p>
             <h2
               id="gallery-heading"
-              className="mt-3 font-sans text-4xl font-semibold leading-[1.08] tracking-tight text-ink sm:text-5xl lg:text-6xl"
+              className="mt-3 font-sans text-4xl font-semibold leading-[1.05] tracking-tight text-ink sm:text-5xl lg:text-6xl"
             >
               Life in the pens
             </h2>
@@ -99,63 +116,95 @@ export function PhotoCarousel() {
         </Reveal>
 
         <Reveal delay={80} className="mt-10">
-        <div
-          onPointerDown={(event) => {
-            if (
-              (event.target as HTMLElement).closest("[data-carousel-control]")
-            )
-              return;
-            if (event.button !== 0) return;
-            swipe.current = { x: event.clientX, y: event.clientY };
-            dragged.current = false;
-          }}
-          onPointerUp={(event) => {
-            if (!swipe.current) return;
-            const dx = event.clientX - swipe.current.x;
-            const dy = event.clientY - swipe.current.y;
-            swipe.current = null;
-            if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return;
-            dragged.current = true;
-            if (dx < 0) showNext();
-            else showPrevious();
-          }}
-          onPointerCancel={() => {
-            swipe.current = null;
-          }}
-        >
-          <button
-            type="button"
-            className="media-zoom block w-full overflow-hidden rounded-[1.15rem] bg-cream-deep text-left shadow-[0_16px_36px_-28px_rgb(36_25_16/0.7)] transition-shadow duration-300 hover:shadow-[0_22px_40px_-24px_rgb(36_25_16/0.75)] sm:rounded-[1.35rem]"
-            aria-label={photo.alt}
-            onClick={() => {
-              if (dragged.current) {
-                dragged.current = false;
+          <div
+            onPointerDown={(event) => {
+              if (
+                (event.target as HTMLElement).closest("[data-carousel-control]")
+              )
                 return;
-              }
-              setLightbox(true);
+              if (event.button !== 0) return;
+              swipe.current = { x: event.clientX, y: event.clientY };
+              dragged.current = false;
+            }}
+            onPointerUp={(event) => {
+              if (!swipe.current) return;
+              const dx = event.clientX - swipe.current.x;
+              const dy = event.clientY - swipe.current.y;
+              swipe.current = null;
+              if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return;
+              dragged.current = true;
+              if (dx < 0) showNext();
+              else showPrevious();
+            }}
+            onPointerCancel={() => {
+              swipe.current = null;
             }}
           >
-            <div className="relative aspect-[20/9] w-full">
-              <Image
-                key={photo.src}
-                src={photo.src}
-                alt={photo.alt}
-                fill
-                sizes="(min-width: 1024px) 72rem, 100vw"
-                className="carousel-in object-contain"
-              />
-            </div>
-          </button>
+            <button
+              type="button"
+              className="media-zoom block w-full overflow-hidden rounded-[1.15rem] bg-cream-deep text-left shadow-[0_24px_40px_-28px_rgb(36_25_16/0.7)] ring-1 ring-line transition-shadow duration-300 hover:shadow-[0_22px_40px_-24px_rgb(36_25_16/0.75)] sm:rounded-[1.35rem]"
+              aria-label={photo.alt}
+              onClick={() => {
+                if (dragged.current) {
+                  dragged.current = false;
+                  return;
+                }
+                setLightbox(true);
+              }}
+            >
+              <div className="relative aspect-[20/9] w-full">
+                <Image
+                  key={photo.src}
+                  src={photo.src}
+                  alt={photo.alt}
+                  fill
+                  sizes="(min-width: 1024px) 72rem, 100vw"
+                  className="carousel-in object-contain"
+                />
+              </div>
+            </button>
 
-          <SlideControls
-            index={index}
-            length={count}
-            label="photo"
-            onPrevious={showPrevious}
-            onNext={showNext}
-            onSelect={go}
-          />
-        </div>
+            <SlideControls
+              index={index}
+              length={count}
+              label="photo"
+              showDots={false}
+              onPrevious={showPrevious}
+              onNext={showNext}
+              onSelect={go}
+            />
+
+            <div
+              ref={stripRef}
+              className="mt-3 flex gap-2 overflow-x-auto pb-1"
+              aria-label="Photo previews"
+            >
+              {galleryPhotos.map((item, itemIndex) => (
+                <button
+                  key={item.src}
+                  type="button"
+                  data-carousel-control=""
+                  data-photo-index={itemIndex}
+                  aria-label={`Show photo ${itemIndex + 1}`}
+                  aria-current={itemIndex === index ? "true" : undefined}
+                  className={`relative h-14 w-24 shrink-0 overflow-hidden rounded-md bg-cream-deep ring-2 ring-offset-2 ring-offset-cream ${
+                    itemIndex === index
+                      ? "ring-terracotta-dark"
+                      : "ring-transparent hover:ring-line"
+                  }`}
+                  onClick={() => go(itemIndex)}
+                >
+                  <Image
+                    src={item.src}
+                    alt=""
+                    fill
+                    sizes="96px"
+                    className="object-contain"
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
         </Reveal>
       </div>
 

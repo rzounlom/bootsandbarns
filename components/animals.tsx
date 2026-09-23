@@ -21,49 +21,55 @@ const practices = [
 
 export function Animals() {
   return (
-    <section id="animals" aria-labelledby="animals-heading" className="scroll-mt-24 bg-olive text-paper">
-      <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20 lg:py-28">
-        <div className="grid items-end gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
-          <Reveal>
-            <p className="kicker text-marigold">In the pens</p>
-            <h2
-              id="animals-heading"
-              className="mt-3 font-sans text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl"
-            >
-              Our Animals
-            </h2>
-            <p className="mt-5 max-w-xl text-[1.075rem] leading-relaxed text-cream sm:text-xl">
-              The farm raises pigs. Their care is steady, practical, and close at hand.
-            </p>
-          </Reveal>
+    <section
+      id="animals"
+      aria-labelledby="animals-heading"
+      className="bg-[linear-gradient(165deg,#1a6b3a_0%,#0f4d2c_46%,#102818_100%)] text-paper"
+    >
+      <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20 lg:py-24">
+        <Reveal className="max-w-2xl">
+          <p className="kicker text-marigold">In the pens</p>
+          <h2
+            id="animals-heading"
+            className="mt-3 font-sans text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl"
+          >
+            Our Animals
+          </h2>
+          <p className="mt-4 max-w-xl text-[1.075rem] leading-relaxed text-cream sm:text-xl">
+            The farm raises pigs. Their care is steady, practical, and close at hand.
+          </p>
+        </Reveal>
 
-          <Reveal delay={90}>
-          <figure className="media-zoom overflow-hidden rounded-[1.25rem] bg-olive-mid shadow-[0_18px_40px_-24px_rgb(0_0_0/0.65)] sm:rounded-[1.5rem]">
+        <div className="mt-10 lg:mt-12">
+          <Reveal>
+            <figure className="media-zoom overflow-hidden rounded-[1.35rem] bg-olive-mid shadow-[0_24px_40px_-28px_rgb(0_0_0/0.7)] ring-1 ring-white/15">
               <Image
                 src={carePhoto.src}
                 alt={carePhoto.alt}
                 width={carePhoto.width}
                 height={carePhoto.height}
-                sizes="(min-width: 1024px) 34rem, 100vw"
+                sizes="(min-width: 1152px) 72rem, 100vw"
                 className="h-auto w-full"
               />
             </figure>
           </Reveal>
-        </div>
 
-        <ol className="mt-12 list-none border-t border-white/15 sm:mt-16">
-          {practices.map((item, index) => (
-            <li key={item.title}>
-              <Reveal delay={index * 70}>
-              <div className="grid gap-3 border-b border-white/15 py-6 transition-colors duration-300 hover:bg-white/5 sm:grid-cols-[5rem_minmax(0,14rem)_minmax(0,1fr)] sm:items-baseline sm:gap-6 sm:py-8 sm:px-3">
-                <p className="font-sans text-3xl font-semibold text-marigold sm:text-4xl">0{index + 1}</p>
-                <h3 className="font-sans text-2xl font-semibold sm:text-3xl">{item.title}</h3>
-                <p className="text-[1.05rem] leading-relaxed text-cream sm:text-lg">{item.body}</p>
-              </div>
-              </Reveal>
-            </li>
-          ))}
-        </ol>
+          <ol className="mt-5 grid list-none gap-3 sm:mt-6 lg:grid-cols-3 lg:gap-5">
+            {practices.map((item, index) => (
+              <li key={item.title}>
+                <Reveal delay={index * 80}>
+                  <div className="rounded-2xl border border-white/12 bg-[rgb(8_28_18/0.42)] px-5 py-5 transition-colors duration-300 hover:bg-[rgb(8_28_18/0.62)]">
+                    <p className="font-sans text-sm font-semibold tracking-[0.16em] text-marigold">
+                      0{index + 1}
+                    </p>
+                    <h3 className="mt-2 font-sans text-2xl font-semibold">{item.title}</h3>
+                    <p className="mt-2 text-[1.05rem] leading-relaxed text-cream">{item.body}</p>
+                  </div>
+                </Reveal>
+              </li>
+            ))}
+          </ol>
+        </div>
       </div>
     </section>
   );

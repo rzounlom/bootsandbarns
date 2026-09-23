@@ -3,6 +3,7 @@ type SlideControlsProps = {
   length: number;
   label: string;
   tone?: "light" | "dark";
+  showDots?: boolean;
   onPrevious: () => void;
   onNext: () => void;
   onSelect: (index: number) => void;
@@ -28,6 +29,7 @@ export function SlideControls({
   length,
   label,
   tone = "light",
+  showDots = true,
   onPrevious,
   onNext,
   onSelect,
@@ -67,6 +69,7 @@ export function SlideControls({
           <Chevron direction="right" />
         </button>
       </div>
+      {showDots ? (
       <ul className="mt-2 flex flex-wrap justify-center" aria-label={`${label} slides`}>
         {Array.from({ length }, (_, itemIndex) => (
           <li key={itemIndex}>
@@ -83,6 +86,7 @@ export function SlideControls({
           </li>
         ))}
       </ul>
+      ) : null}
     </div>
   );
 }

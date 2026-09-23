@@ -10,6 +10,8 @@ export type FarmVideo = {
   poster: string;
   title: string;
   description: string;
+  width: number;
+  height: number;
 };
 
 /** Wide pen photographs, shown in full so the animals are not cropped away. */
@@ -123,30 +125,40 @@ export const farmVideos: FarmVideo[] = [
     poster: "/videos/posters/piglets-nursing.jpg",
     title: "Piglets nursing",
     description: "Piglets feeding alongside a sow.",
+    width: 368,
+    height: 656,
   },
   {
     src: "/videos/at-the-trough.mp4",
     poster: "/videos/posters/at-the-trough.jpg",
     title: "At the trough",
     description: "Young pigs gathered at a feeding trough.",
+    width: 368,
+    height: 656,
   },
   {
     src: "/videos/by-the-window.mp4",
     poster: "/videos/posters/by-the-window.jpg",
     title: "By the window",
     description: "A pig standing beside a barred window.",
+    width: 368,
+    height: 656,
   },
   {
     src: "/videos/sow-and-piglets.mp4",
     poster: "/videos/posters/sow-and-piglets.jpg",
     title: "Sow and piglets",
     description: "A sow lying with her piglets.",
+    width: 362,
+    height: 640,
   },
   {
     src: "/videos/rinsing.mp4",
     poster: "/videos/posters/rinsing.jpg",
     title: "Rinsing",
     description: "A pig being rinsed in a pen.",
+    width: 576,
+    height: 1028,
   },
 ];
 

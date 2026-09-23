@@ -180,6 +180,27 @@ body {
   }
 }
 
+.clip-dialog {
+  display: none;
+  margin: auto;
+  width: min(100% - 1.5rem, 28rem);
+  max-height: calc(100dvh - 1.5rem);
+  border: 0;
+  padding: 0;
+  background: var(--color-wood);
+  color: var(--color-cream);
+  border-radius: 1rem;
+}
+
+.clip-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.clip-dialog::backdrop {
+  background: rgb(12 16 12 / 78%);
+}
+
 @media (max-width: 767px) {
   .hero-scrim {
     background: linear-gradient(
@@ -233,6 +254,11 @@ body {
 
   .hero-controls {
     bottom: 0.65rem;
+  }
+
+  .clip-dialog {
+    width: fit-content;
+    max-width: calc(100vw - 1rem);
   }
 }
 
