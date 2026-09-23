@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useId, useState } from "react";
 
 const links = [
@@ -40,17 +41,27 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-paper/95 backdrop-blur-md">
-      <div className="h-1 bg-terracotta" />
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-5 sm:h-[4.5rem] sm:px-8">
+      <div className="h-1 bg-leaf" />
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2 sm:gap-4 sm:px-8">
         <a
           href="#top"
-          className="min-w-0 rounded-sm leading-tight"
+          className="flex min-w-0 items-center gap-2.5 rounded-sm sm:gap-3"
           onClick={() => setOpen(false)}
         >
-          <span className="block font-serif text-xl font-semibold tracking-tight text-ink sm:text-2xl">
-            Boots and Barns
+          <Image
+            src="/img/logo/bb_logo_circle.png"
+            alt=""
+            width={1254}
+            height={1254}
+            preload
+            className="size-12 shrink-0 sm:size-14"
+          />
+          <span className="min-w-0 leading-tight">
+            <span className="block font-serif text-lg font-semibold tracking-tight text-ink min-[380px]:text-xl sm:text-2xl">
+              Boots and Barns
+            </span>
+            <span className="block text-sm font-semibold text-terracotta-dark">Animal Farm</span>
           </span>
-          <span className="block text-sm font-semibold text-terracotta-dark">Animal Farm</span>
         </a>
 
         <nav aria-label="Page" className="hidden md:block">

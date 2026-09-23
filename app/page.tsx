@@ -2,9 +2,10 @@ import { About } from "@/components/about";
 import { Animals } from "@/components/animals";
 import { Footer } from "@/components/footer";
 import { Founders } from "@/components/founders";
-import { Gallery } from "@/components/gallery";
 import { Header } from "@/components/header";
 import { Hero } from "@/components/hero";
+import { PhotoCarousel } from "@/components/photo-carousel";
+import { VideoCarousel } from "@/components/video-carousel";
 
 export default function Home() {
   return (
@@ -20,7 +21,8 @@ export default function Home() {
         <Hero />
         <About />
         <Animals />
-        <Gallery />
+        <PhotoCarousel />
+        <VideoCarousel />
         <Founders />
       </main>
       <Footer />

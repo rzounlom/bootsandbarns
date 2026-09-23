@@ -3,22 +3,24 @@
 @theme inline {
   --font-sans: var(--font-nunito), "Nunito Sans", "Segoe UI", sans-serif;
   --font-serif: var(--font-fraunces), Georgia, serif;
-  --color-cream: #f3ecdf;
+  --color-cream: #f6efe3;
   --color-cream-deep: #e8dcc6;
   --color-paper: #fbf6ee;
-  --color-ink: #241910;
-  --color-ink-soft: #4e3b30;
-  --color-olive: #243328;
-  --color-olive-mid: #3c5344;
-  --color-terracotta: #c4543a;
-  --color-terracotta-dark: #8c3826;
-  --color-marigold: #e2a322;
-  --color-line: #dccbb6;
+  --color-ink: #2c160c;
+  --color-ink-soft: #5c3d2c;
+  --color-olive: #0f4d2c;
+  --color-olive-mid: #1a6b3a;
+  --color-terracotta: #f56f03;
+  --color-terracotta-dark: #8f3a00;
+  --color-marigold: #e8bc6a;
+  --color-line: #e4d4bc;
+  --color-wood: #2c160c;
+  --color-leaf: #01b23e;
 }
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 5.5rem;
+  scroll-padding-top: 6rem;
 }
 
 body {
@@ -53,7 +55,20 @@ body {
 }
 
 .btn:hover {
-  background: #6f2c1d;
+  background: #732f00;
+}
+
+@keyframes carousel-in {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.carousel-in {
+  animation: carousel-in 280ms ease;
 }
 
 .kicker {
@@ -70,7 +85,7 @@ body {
   max-height: calc(100dvh - 1.5rem);
   border: 0;
   padding: 0;
-  background: var(--color-olive);
+  background: var(--color-wood);
   color: var(--color-cream);
 }
 
