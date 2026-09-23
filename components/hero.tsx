@@ -26,6 +26,7 @@ export function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const userPaused = useRef(false);
   const soundOn = useRef(false);
+  const userMuted = useRef(false);
   const attachVideo = useCallback((node: HTMLVideoElement | null) => {
     videoRef.current = node;
     if (!node) return;
@@ -56,7 +57,6 @@ export function Hero() {
       video.play().catch(() => {
         if (!video.muted) {
           video.muted = true;
-          soundOn.current = false;
           setMuted(true);
           video.play().catch(() => setPlaying(false));
           return;
@@ -77,7 +77,35 @@ export function Hero() {
     );
 
     observer.observe(frame);
-    return () => observer.disconnect();
+
+    const unlockSound = (event: PointerEvent) => {
+      const target = event.target;
+      if (target instanceof Element && target.closest("[data-hero-sound]")) return;
+      if (userMuted.current) return;
+
+      soundOn.current = true;
+      const player = videoRef.current;
+      if (!player) {
+        setMuted(false);
+        userPaused.current = false;
+        setEngaged(true);
+        return;
+      }
+      if (!player.muted && !player.paused) return;
+
+      player.muted = false;
+      player.volume = 1;
+      setMuted(false);
+      if (!userPaused.current && player.paused) {
+        player.play().catch(() => setPlaying(false));
+      }
+    };
+
+    document.addEventListener("pointerdown", unlockSound);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("pointerdown", unlockSound);
+    };
   }, [engaged, showPlayer]);
 
   function togglePlayback() {
@@ -107,6 +135,7 @@ export function Hero() {
 
     if (!showPlayer) {
       soundOn.current = true;
+      userMuted.current = false;
       setMuted(false);
       userPaused.current = false;
       setEngaged(true);
@@ -114,6 +143,7 @@ export function Hero() {
     }
 
     if (!video) return;
+    userMuted.current = nextMuted;
     soundOn.current = !nextMuted;
     video.muted = nextMuted;
     if (!nextMuted) video.volume = 1;
@@ -198,6 +228,7 @@ export function Hero() {
           <button
             type="button"
             className="inline-flex h-11 items-center gap-1.5 rounded-full bg-paper/95 px-3 text-sm font-semibold text-ink shadow-[0_10px_24px_-14px_rgb(0_0_0/0.85)] transition hover:-translate-y-0.5"
+            data-hero-sound=""
             aria-label={muted ? "Turn sound on" : "Turn sound off"}
             aria-pressed={!muted}
             onClick={toggleSound}
