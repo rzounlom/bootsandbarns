@@ -1,6 +1,10 @@
 export function About() {
   return (
-    <section id="about" aria-labelledby="about-heading" className="scroll-mt-24 bg-cream">
+    <section
+      id="about"
+      aria-labelledby="about-heading"
+      className="scroll-mt-24 bg-cream"
+    >
       <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20 lg:py-28">
         <div className="max-w-3xl">
           <h2
@@ -11,12 +15,11 @@ export function About() {
           </h2>
           <div className="mt-6 space-y-5 text-base leading-relaxed text-ink-soft sm:text-lg sm:leading-8">
             <p>
-              Boots and Barns Animal Farm is a family-run farm in Ikot-Ekpene,
-              Nigeria. Sifon-Glory Benson used her savings to help her father
-              start a pig farm after he lost an investment in a fish farm. He
-              died while the farm was still young. She and her brother, Senyie
-              Benson, have carried the work forward, and with it his hope of
-              giving back.
+              Boots and Barns began in Ikot-Ekpene when Sifon-Glory Benson
+              helped her father start a pig farm. He passed away before he could
+              see it grow, but she and her brother, Senyie Benson, continued the
+              work he started. Today, the farm carries forward his wish to give
+              back to the community.
             </p>
             <p>
               What began as a small pig farm is now a place where we raise
