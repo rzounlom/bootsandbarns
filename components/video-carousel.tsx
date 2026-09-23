@@ -88,9 +88,6 @@ export function VideoCarousel() {
           >
             Clips from the farm
           </h2>
-          <p className="mt-4 max-w-xl text-[1.075rem] leading-relaxed text-cream sm:text-lg">
-            Five clips. Choose one to play.
-          </p>
         </Reveal>
         <ul className="mt-8 grid grid-cols-2 items-stretch gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
           {farmVideos.map((video, index) => (

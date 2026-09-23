@@ -152,10 +152,6 @@ export function PhotoCarousel() {
         >
           Life in the pens
         </h2>
-        <p className="mt-4 max-w-xl text-[1.075rem] leading-relaxed text-ink-soft sm:text-lg">
-          Fourteen photographs. The reel advances on its own, and you can move through it
-          whenever you like.
-        </p>
       </Reveal>
     <div
       ref={rootRef}
