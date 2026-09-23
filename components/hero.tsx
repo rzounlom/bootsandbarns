@@ -22,45 +22,9 @@ function motionSnapshot() {
 }
 
 export function Hero() {
-  return (
-    <section aria-labelledby="hero-heading" className="bg-olive text-paper">
-      <div className="hero-grid mx-auto grid max-w-7xl items-center md:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
-        <div className="hero-copy order-2 flex flex-col justify-center px-5 py-10 sm:px-8 sm:py-14 md:order-1 md:py-16 lg:px-12 lg:py-20">
-          <p className="kicker text-marigold">Ikot-Ekpene, Nigeria</p>
-          <h1
-            id="hero-heading"
-            className="hero-title mt-4 font-sans text-[2.15rem] font-semibold leading-[1.08] tracking-tight text-paper min-[380px]:text-[2.45rem] md:text-[2.6rem] lg:text-5xl xl:text-[3.4rem]"
-          >
-            A family farm,
-            <br />
-            still at work.
-          </h1>
-          <p className="hero-lede mt-5 max-w-[34ch] text-lg leading-relaxed text-cream sm:text-xl">
-            We raise pigs, grow food, and carry forward our father’s hope of
-            giving back.
-          </p>
-          <div className="hero-cta mt-8">
-            <a href="#about" className="btn">
-              About the farm
-            </a>
-          </div>
-        </div>
-
-        <div className="hero-photo order-1 md:order-2 md:py-8 md:pr-8 lg:py-10 lg:pr-10">
-          <div className="relative aspect-video max-h-[54svh] overflow-hidden bg-olive-mid shadow-[0_24px_50px_-28px_rgb(0_0_0/0.7)] md:max-h-none md:rounded-[1.75rem]">
-            <HeroFilm />
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function HeroFilm() {
   const frameRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const userPaused = useRef(false);
-  const wantsSound = useRef(true);
   const soundOn = useRef(false);
   const attachVideo = useCallback((node: HTMLVideoElement | null) => {
     videoRef.current = node;
@@ -84,54 +48,21 @@ function HeroFilm() {
     const video = videoRef.current;
     const frame = frameRef.current;
     if (!video || !frame || !showPlayer) return;
-    if (
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
-      !engaged
-    )
-      return;
 
     const playIfAllowed = () => {
       if (userPaused.current) return;
-
-      const policy = (
-        navigator as Navigator & {
-          getAutoplayPolicy?: (type: string) => string;
+      video.muted = !soundOn.current;
+      if (!video.muted) video.volume = 1;
+      video.play().catch(() => {
+        if (!video.muted) {
+          video.muted = true;
+          soundOn.current = false;
+          setMuted(true);
+          video.play().catch(() => setPlaying(false));
+          return;
         }
-      ).getAutoplayPolicy?.("mediaelement");
-      const startWithSound = wantsSound.current && policy === "allowed";
-      video.muted = !startWithSound;
-      video.volume = 1;
-
-      video
-        .play()
-        .then(() => {
-          if (!wantsSound.current || userPaused.current || startWithSound) {
-            setMuted(video.muted);
-            return;
-          }
-
-          video.muted = false;
-          video.volume = 1;
-          window.setTimeout(() => {
-            if (userPaused.current) return;
-            if (!video.paused) {
-              setMuted(false);
-              return;
-            }
-            video.muted = true;
-            setMuted(true);
-            video.play().catch(() => setPlaying(false));
-          }, 80);
-        })
-        .catch(() => {
-          if (!video.muted) {
-            video.muted = true;
-            setMuted(true);
-            video.play().catch(() => setPlaying(false));
-            return;
-          }
-          setPlaying(false);
-        });
+        setPlaying(false);
+      });
     };
 
     playIfAllowed();
@@ -146,26 +77,7 @@ function HeroFilm() {
     );
 
     observer.observe(frame);
-
-    const unlockSound = (event: PointerEvent) => {
-      const target = event.target;
-      if (target instanceof Element && target.closest("[data-hero-control]"))
-        return;
-      const player = videoRef.current;
-      if (!player || !wantsSound.current || userPaused.current) return;
-      player.muted = false;
-      player.volume = 1;
-      soundOn.current = true;
-      setMuted(false);
-      player.play().catch(() => setPlaying(false));
-    };
-
-    document.addEventListener("pointerdown", unlockSound);
-
-    return () => {
-      observer.disconnect();
-      document.removeEventListener("pointerdown", unlockSound);
-    };
+    return () => observer.disconnect();
   }, [engaged, showPlayer]);
 
   function togglePlayback() {
@@ -194,6 +106,7 @@ function HeroFilm() {
     const nextMuted = video ? !video.muted : !muted;
 
     if (!showPlayer) {
+      soundOn.current = true;
       setMuted(false);
       userPaused.current = false;
       setEngaged(true);
@@ -201,7 +114,7 @@ function HeroFilm() {
     }
 
     if (!video) return;
-    wantsSound.current = !nextMuted;
+    soundOn.current = !nextMuted;
     video.muted = nextMuted;
     if (!nextMuted) video.volume = 1;
     setMuted(nextMuted);
@@ -215,43 +128,76 @@ function HeroFilm() {
   const paused = !showPlayer || !playing;
 
   return (
-    <div ref={frameRef} className="absolute inset-0 bg-olive-mid">
-      {showPlayer ? (
-        <video
-          ref={attachVideo}
-          className="h-full w-full object-cover"
-          autoPlay
-          muted={muted}
-          playsInline
-          loop
-          preload="auto"
-          poster={heroVideo.poster}
-          aria-label={heroVideo.label}
-          onPlay={() => setPlaying(true)}
-          onPause={() => setPlaying(false)}
-          onError={() => setFailed(true)}
-        >
-          <source src={heroVideo.src} type="video/mp4" />
-        </video>
-      ) : (
-        <Image
-          src={heroVideo.poster}
-          alt={heroVideo.label}
-          fill
-          preload
-          sizes="(min-width: 768px) 54vw, 100vw"
-          className="object-cover"
+    <section
+      aria-labelledby="hero-heading"
+      className="hero-shell relative min-h-[100svh] overflow-hidden bg-olive text-paper"
+    >
+      <div ref={frameRef} className="absolute inset-0">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${heroVideo.poster})` }}
         />
-      )}
+        {showPlayer ? (
+          <video
+            ref={attachVideo}
+            className="absolute inset-0 h-full w-full object-cover object-center"
+            autoPlay
+            muted={muted}
+            playsInline
+            loop
+            preload="auto"
+            poster={heroVideo.poster}
+            aria-label={heroVideo.label}
+            onPlay={() => setPlaying(true)}
+            onPause={() => setPlaying(false)}
+            onError={() => setFailed(true)}
+          >
+            <source src={heroVideo.src} type="video/mp4" />
+          </video>
+        ) : (
+          <Image
+            src={heroVideo.poster}
+            alt={heroVideo.label}
+            fill
+            preload
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+        )}
+        <div className="hero-scrim pointer-events-none absolute inset-0" />
+      </div>
+
+      <div className="hero-copy-wrap relative z-10 flex min-h-[100svh] w-full min-w-0 items-end px-5 pt-28 pb-28 pointer-events-none sm:px-8 md:items-center md:px-12 md:pt-32 md:pb-20 lg:px-16">
+        <div className="hero-enter hero-copy pointer-events-auto w-full min-w-0 max-w-[40rem]">
+          <p className="kicker text-marigold">Ikot-Ekpene, Nigeria</p>
+          <h1
+            id="hero-heading"
+            className="hero-title mt-4 font-sans text-[2.55rem] font-semibold leading-[1.02] tracking-tight text-paper min-[380px]:text-[2.9rem] sm:text-6xl lg:text-7xl"
+          >
+            A family farm,
+            <br />
+            still at work.
+          </h1>
+          <p className="hero-lede mt-5 max-w-[34ch] text-lg leading-relaxed text-cream sm:text-xl">
+            We raise pigs, grow food, and carry forward our father’s hope of
+            giving back.
+          </p>
+          <div className="hero-cta mt-8">
+            <a href="#about" className="btn">
+              About the farm
+            </a>
+          </div>
+        </div>
+      </div>
 
       {failed ? null : (
         <div
           data-hero-control=""
-          className="absolute right-3 bottom-3 flex items-center gap-2"
+          className="hero-controls absolute right-4 bottom-4 z-20 flex items-center gap-2 sm:right-6 sm:bottom-6"
         >
           <button
             type="button"
-            className="inline-flex h-11 items-center gap-1.5 rounded-full bg-paper/92 px-3 text-sm font-semibold text-ink shadow-[0_8px_20px_-12px_rgb(0_0_0/0.8)]"
+            className="inline-flex h-11 items-center gap-1.5 rounded-full bg-paper/95 px-3 text-sm font-semibold text-ink shadow-[0_10px_24px_-14px_rgb(0_0_0/0.85)] transition hover:-translate-y-0.5"
             aria-label={muted ? "Turn sound on" : "Turn sound off"}
             aria-pressed={!muted}
             onClick={toggleSound}
@@ -261,7 +207,7 @@ function HeroFilm() {
           </button>
           <button
             type="button"
-            className="inline-flex size-11 items-center justify-center rounded-full bg-paper/92 text-ink shadow-[0_8px_20px_-12px_rgb(0_0_0/0.8)]"
+            className="inline-flex size-11 items-center justify-center rounded-full bg-paper/95 text-ink shadow-[0_10px_24px_-14px_rgb(0_0_0/0.85)] transition hover:-translate-y-0.5"
             aria-label={paused ? "Play farm video" : "Pause farm video"}
             aria-pressed={!paused}
             onClick={togglePlayback}
@@ -270,7 +216,7 @@ function HeroFilm() {
           </button>
         </div>
       )}
-    </div>
+    </section>
   );
 }
 

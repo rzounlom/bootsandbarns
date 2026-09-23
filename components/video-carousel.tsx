@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { farmVideos } from "@/lib/media";
+import { Reveal } from "@/components/reveal";
 import { SlideControls } from "@/components/slide-controls";
 
 export function VideoCarousel() {
@@ -50,7 +51,7 @@ export function VideoCarousel() {
       onKeyDown={onKeyDown}
     >
       <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20 lg:py-28">
-        <div>
+        <Reveal>
           <h2
             id="videos-heading"
             className="font-sans text-3xl font-semibold tracking-tight sm:text-4xl"
@@ -60,10 +61,10 @@ export function VideoCarousel() {
           <p className="mt-3 max-w-2xl text-[1.075rem] leading-relaxed text-cream sm:text-lg">
             Five clips from the farm. Nothing plays until you start it.
           </p>
-        </div>
+        </Reveal>
 
+        <Reveal delay={80} className="mt-8">
         <div
-          className="mt-8"
           onPointerDown={(event) => {
             const target = event.target as HTMLElement;
             if (target instanceof HTMLVideoElement || target.closest("[data-carousel-control]")) return;
@@ -114,6 +115,7 @@ export function VideoCarousel() {
             onSelect={go}
           />
         </div>
+        </Reveal>
       </div>
     </section>
   );

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Reveal } from "@/components/reveal";
 import { galleryPhotos } from "@/lib/media";
 
 const carePhoto = galleryPhotos.find((photo) => photo.src.includes("081501")) ?? galleryPhotos[0];
@@ -23,7 +24,7 @@ export function Animals() {
     <section id="animals" aria-labelledby="animals-heading" className="scroll-mt-24 bg-olive text-paper">
       <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20 lg:py-28">
         <div className="grid items-end gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
-          <div>
+          <Reveal>
             <p className="kicker text-marigold">In the pens</p>
             <h2
               id="animals-heading"
@@ -34,9 +35,10 @@ export function Animals() {
             <p className="mt-5 max-w-xl text-[1.075rem] leading-relaxed text-cream sm:text-xl">
               The farm raises pigs. Their care is steady, practical, and close at hand.
             </p>
-          </div>
+          </Reveal>
 
-          <figure className="overflow-hidden rounded-[1.25rem] bg-olive-mid shadow-[0_18px_40px_-24px_rgb(0_0_0/0.65)] sm:rounded-[1.5rem]">
+          <Reveal delay={90}>
+          <figure className="media-zoom overflow-hidden rounded-[1.25rem] bg-olive-mid shadow-[0_18px_40px_-24px_rgb(0_0_0/0.65)] sm:rounded-[1.5rem]">
               <Image
                 src={carePhoto.src}
                 alt={carePhoto.alt}
@@ -46,16 +48,19 @@ export function Animals() {
                 className="h-auto w-full"
               />
             </figure>
+          </Reveal>
         </div>
 
         <ol className="mt-12 list-none border-t border-white/15 sm:mt-16">
           {practices.map((item, index) => (
             <li key={item.title}>
-              <div className="grid gap-3 border-b border-white/15 py-6 sm:grid-cols-[5rem_minmax(0,14rem)_minmax(0,1fr)] sm:items-baseline sm:gap-6 sm:py-8">
+              <Reveal delay={index * 70}>
+              <div className="grid gap-3 border-b border-white/15 py-6 transition-colors duration-300 hover:bg-white/5 sm:grid-cols-[5rem_minmax(0,14rem)_minmax(0,1fr)] sm:items-baseline sm:gap-6 sm:py-8 sm:px-3">
                 <p className="font-sans text-3xl font-semibold text-marigold sm:text-4xl">0{index + 1}</p>
                 <h3 className="font-sans text-2xl font-semibold sm:text-3xl">{item.title}</h3>
                 <p className="text-[1.05rem] leading-relaxed text-cream sm:text-lg">{item.body}</p>
               </div>
+              </Reveal>
             </li>
           ))}
         </ol>

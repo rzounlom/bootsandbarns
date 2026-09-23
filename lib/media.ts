@@ -109,7 +109,7 @@ export const heroVideo = {
   poster: "/videos/posters/boots-and-barns-hero.jpg",
   width: 1280,
   height: 720,
-  label: "Plantain trees at Boots and Barns, from the farm film.",
+  label: "Boots and Barns farm film.",
 };
 
 /**

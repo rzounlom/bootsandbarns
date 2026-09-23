@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useState, useSyncExternalStore } from "react";
 
 const links = [
   { href: "#about", label: "About" },
@@ -10,9 +10,24 @@ const links = [
   { href: "#founders", label: "Founders" },
 ];
 
+function subscribeToScroll(onChange: () => void) {
+  window.addEventListener("scroll", onChange, { passive: true });
+  return () => window.removeEventListener("scroll", onChange);
+}
+
+function overHeroSnapshot() {
+  return window.scrollY < 48;
+}
+
 export function Header() {
   const [open, setOpen] = useState(false);
   const menuId = useId();
+  const overHero = useSyncExternalStore(
+    subscribeToScroll,
+    overHeroSnapshot,
+    () => true,
+  );
+  const solid = open || !overHero;
 
   useEffect(() => {
     const onResize = () => {
@@ -40,7 +55,13 @@ export function Header() {
   }, [open]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-paper/95 backdrop-blur-md">
+    <header
+      className={`fixed inset-x-0 top-0 z-40 border-b backdrop-blur-md transition-colors duration-300 ${
+        solid
+          ? "border-line bg-paper/95 text-ink"
+          : "border-white/10 bg-[rgb(7_22_14/0.92)] text-paper"
+      }`}
+    >
       <div className="h-1 bg-leaf" />
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2 sm:gap-4 sm:px-8">
         <a
@@ -57,10 +78,20 @@ export function Header() {
             className="size-12 shrink-0 sm:size-14"
           />
           <span className="min-w-0 leading-tight">
-            <span className="block font-sans text-lg font-semibold tracking-tight text-ink min-[380px]:text-xl sm:text-2xl">
+            <span
+              className={`block font-sans text-lg font-semibold tracking-tight min-[380px]:text-xl sm:text-2xl ${
+                solid ? "text-ink" : "text-paper"
+              }`}
+            >
               Boots and Barns
             </span>
-            <span className="block text-sm font-semibold text-terracotta-dark">Animal Farm</span>
+            <span
+              className={`block text-sm font-semibold ${
+                solid ? "text-terracotta-dark" : "text-marigold"
+              }`}
+            >
+              Animal Farm
+            </span>
           </span>
         </a>
 
@@ -70,7 +101,11 @@ export function Header() {
               <li key={link.href}>
                 <a
                   href={link.href}
-                  className="inline-flex min-h-11 items-center rounded-full px-3 text-base font-semibold text-ink-soft hover:bg-cream hover:text-ink"
+                  className={`inline-flex min-h-11 items-center rounded-full px-3 text-base font-semibold transition-colors duration-200 ${
+                    solid
+                      ? "text-ink-soft hover:bg-cream hover:text-ink"
+                      : "text-paper hover:bg-white/15 hover:text-paper"
+                  }`}
                 >
                   {link.label}
                 </a>
@@ -81,7 +116,9 @@ export function Header() {
 
         <button
           type="button"
-          className="inline-flex size-11 items-center justify-center rounded-md text-ink md:hidden"
+          className={`inline-flex size-11 items-center justify-center rounded-md transition-colors md:hidden ${
+            solid ? "text-ink hover:bg-cream" : "text-paper hover:bg-white/15"
+          }`}
           aria-expanded={open}
           aria-controls={menuId}
           aria-label={open ? "Close menu" : "Open menu"}

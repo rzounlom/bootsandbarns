@@ -10,6 +10,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
 import { galleryPhotos } from "@/lib/media";
+import { Reveal } from "@/components/reveal";
 import { SlideControls } from "@/components/slide-controls";
 
 export function PhotoCarousel() {
@@ -85,7 +86,7 @@ export function PhotoCarousel() {
       onKeyDown={onKeyDown}
     >
       <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20 lg:py-28">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <Reveal className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="kicker text-terracotta-dark">Gallery</p>
             <h2
@@ -95,10 +96,10 @@ export function PhotoCarousel() {
               Life in the pens
             </h2>
           </div>
-        </div>
+        </Reveal>
 
+        <Reveal delay={80} className="mt-10">
         <div
-          className="mt-10"
           onPointerDown={(event) => {
             if (
               (event.target as HTMLElement).closest("[data-carousel-control]")
@@ -124,7 +125,7 @@ export function PhotoCarousel() {
         >
           <button
             type="button"
-            className="block w-full overflow-hidden rounded-[1.15rem] bg-cream-deep text-left shadow-[0_16px_36px_-28px_rgb(36_25_16/0.7)] sm:rounded-[1.35rem]"
+            className="media-zoom block w-full overflow-hidden rounded-[1.15rem] bg-cream-deep text-left shadow-[0_16px_36px_-28px_rgb(36_25_16/0.7)] transition-shadow duration-300 hover:shadow-[0_22px_40px_-24px_rgb(36_25_16/0.75)] sm:rounded-[1.35rem]"
             aria-label={photo.alt}
             onClick={() => {
               if (dragged.current) {
@@ -155,6 +156,7 @@ export function PhotoCarousel() {
             onSelect={go}
           />
         </div>
+        </Reveal>
       </div>
 
       <dialog

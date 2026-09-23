@@ -1,9 +1,10 @@
 import Image from "next/image";
+import { Reveal } from "@/components/reveal";
 
 export function Footer() {
   return (
     <footer className="bg-wood text-cream">
-      <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-5 py-12 text-center sm:flex-row sm:items-center sm:gap-10 sm:px-8 sm:py-14 sm:text-left">
+      <Reveal className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-5 py-12 text-center sm:flex-row sm:items-center sm:gap-10 sm:px-8 sm:py-14 sm:text-left">
         <Image
           src="/img/logo/bb_logo_circle.png"
           alt=""
@@ -17,7 +18,7 @@ export function Footer() {
           <p className="text-lg text-cream/85">Ikot-Ekpene, Nigeria</p>
           <p className="text-base text-cream/70">© 2026 Boots and Barns Animal Farm</p>
         </div>
-      </div>
+      </Reveal>
     </footer>
   );
 }

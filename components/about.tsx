@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Reveal } from "@/components/reveal";
 import { galleryPhotos } from "@/lib/media";
 
 const storyPhoto = galleryPhotos.find((photo) => photo.src.includes("081120")) ?? galleryPhotos[0];
@@ -14,7 +15,7 @@ export function About() {
     <section id="about" aria-labelledby="about-heading" className="scroll-mt-24 bg-paper">
       <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20 lg:py-28">
         <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-16">
-          <div>
+          <Reveal>
             <p className="kicker text-terracotta-dark">About</p>
             <h2
               id="about-heading"
@@ -22,9 +23,9 @@ export function About() {
             >
               The work he started
             </h2>
-          </div>
+          </Reveal>
 
-          <div className="space-y-5 text-[1.075rem] leading-relaxed text-ink-soft sm:text-lg sm:leading-8">
+          <Reveal delay={90} className="space-y-5 text-[1.075rem] leading-relaxed text-ink-soft sm:text-lg sm:leading-8">
               <p>
                 Boots and Barns began in Ikot-Ekpene when Sifon-Glory Benson helped her father
                 start a pig farm. He passed away before he could see it grow, but she and her
@@ -38,10 +39,11 @@ export function About() {
                 share food with the community, and some of the farm’s proceeds go toward small loans
                 for neighboring farmers.
               </p>
-            </div>
+          </Reveal>
         </div>
 
-        <figure className="mt-12 overflow-hidden rounded-[1.25rem] border-2 border-marigold bg-cream-deep shadow-[0_20px_40px_-28px_rgb(36_25_16/0.55)] sm:mt-16 sm:rounded-[1.75rem]">
+        <Reveal className="mt-12 sm:mt-16">
+        <figure className="media-zoom overflow-hidden rounded-[1.25rem] border-2 border-marigold bg-cream-deep shadow-[0_20px_40px_-28px_rgb(36_25_16/0.55)] sm:rounded-[1.75rem]">
           <Image
             src={storyPhoto.src}
             alt={storyPhoto.alt}
@@ -51,15 +53,18 @@ export function About() {
             className="h-auto w-full"
           />
         </figure>
+        </Reveal>
 
         <dl className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-3">
-          {facts.map((fact) => (
-            <div key={fact.label} className="h-full rounded-2xl border border-line bg-cream px-5 py-5">
+          {facts.map((fact, index) => (
+            <Reveal key={fact.label} delay={index * 80} className="h-full">
+            <div className="fact-card h-full rounded-2xl border border-line bg-cream px-5 py-5">
               <dt className="font-sans text-2xl font-semibold text-olive">{fact.label}</dt>
               <dd className="mt-2 text-base leading-relaxed text-ink-soft sm:text-[1.05rem]">
                 {fact.value}
               </dd>
             </div>
+            </Reveal>
           ))}
         </dl>
       </div>
