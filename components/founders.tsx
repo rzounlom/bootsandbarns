@@ -18,8 +18,8 @@ export function Founders() {
             Carrying the farm forward
           </h2>
           <p className="mt-5 max-w-md text-[1.075rem] leading-relaxed text-ink-soft sm:text-xl">
-            Together, they care for the farm their father started and the
-            community he hoped it would serve.
+            Together, Senyie and Sifon care for the farm their father started
+            and the community he hoped it would serve.
           </p>
         </div>
 
